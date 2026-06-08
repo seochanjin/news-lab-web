@@ -1,6 +1,6 @@
 # NewsLab Web
 
-NewsLab Web은 여러 출처의 뉴스를 한눈에 탐색하기 위한 NewsLab 프로젝트의 프론트엔드 애플리케이션입니다. 메인 화면은 NewsLab backend의 `/articles` API에서 최신 기사 목록을 조회합니다.
+NewsLab Web은 여러 출처의 뉴스를 한눈에 탐색하고 주요 흐름을 정리해 보여주는 NewsLab 프로젝트의 프론트엔드 애플리케이션입니다. 현재 메인 화면은 토픽 중심 제품 방향 목업과 NewsLab backend의 실제 `/articles` 최신 기사 목록을 함께 제공합니다.
 
 ## 기술 스택
 
@@ -42,11 +42,20 @@ npm run dev
 
 - 서비스명과 검색 UI가 포함된 헤더
 - 전체, 정치, 경제, 기술, 세계, 사회, AI 카테고리 탐색 UI
-- 이미지 없이 읽기 쉬운 게시판형 실제 기사 목록
+- NewsLab의 뉴스 흐름 정리 가치를 설명하는 상단 영역
+- mock data 기반 오늘의 주요 흐름, 키워드, 관련 기사 묶음 prototype
+- 이미지 없이 읽기 쉬운 실제 `/articles` 최신 기사 목록
 - 추후 광고, 필터, 랭킹, 수집 상태, 추천 영역을 넣을 수 있는 좌우 side slot
 - 데스크톱과 모바일 반응형 레이아웃
 
 현재 검색, 카테고리, 좌우 side slot은 구조만 제공하며, 실제 검색, API 필터링, 페이지네이션, 광고, 추천 로직은 구현하지 않았습니다.
+
+## 토픽 중심 화면 목업
+
+- 오늘의 주요 흐름, 많이 보이는 키워드, 관련 기사 묶음 영역은 제품 방향 검증을 위한 mock/prototype UI입니다.
+- 해당 영역의 문구와 수치는 실제 AI 요약, backend 분석, 검증된 키워드 추출 결과가 아닙니다.
+- 실제 토픽 생성, 기사 클러스터링, 키워드 추출, 한국어 요약 API와 데이터 파이프라인은 후속 작업으로 분리합니다.
+- 실제 `/articles` API 기반 최신 기사 목록은 메인 화면 하단 보조 영역에서 계속 제공합니다.
 
 ## 기사 API 연동
 
@@ -78,9 +87,11 @@ credential scan은 문서의 `.env` 안내도 탐지할 수 있으므로 실제 
 
 ## 화면 예시
 
-아래 화면은 `/articles` API를 연동해 실제 기사 목록을 표시한 메인 화면입니다.
+아래 화면은 NewsLab Web의 토픽 중심 메인 화면 목업입니다.
 
-![NewsLab Web 기사 목록 화면](./public/screenshots/main-articles-api.png)
+상단의 토픽, 키워드, 관련 기사 묶음 영역은 제품 방향을 검증하기 위한 prototype UI이며, 실제 토픽 생성, 키워드 추출, 기사 클러스터링, 요약 API는 후속 백엔드 작업에서 구현할 예정입니다. 하단의 최신 기사 목록은 NewsLab backend `/articles` API에서 가져온 실제 기사 데이터를 사용합니다.
+
+![NewsLab Web 토픽 중심 메인 화면](./public/screenshots/main-articles-re01.png)
 
 ## 범위 안내
 
