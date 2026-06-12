@@ -37,6 +37,21 @@ if ! git check-ref-format --branch "$branch_name" >/dev/null 2>&1; then
   exit 1
 fi
 
+current_branch="$(git branch --show-current)"
+
+if [[ -z "$current_branch" ]]; then
+  echo "오류: 현재 git branch를 확인할 수 없습니다." >&2
+  exit 1
+fi
+
+if [[ "$current_branch" != "$branch_name" ]]; then
+  echo "오류: 현재 branch와 입력 branch가 다릅니다." >&2
+  echo "현재 branch: $current_branch" >&2
+  echo "입력 branch: $branch_name" >&2
+  echo "먼저 실행하세요: git switch -c $branch_name" >&2
+  exit 1
+fi
+
 safe_name="${branch_name//\//-}"
 
 files=(

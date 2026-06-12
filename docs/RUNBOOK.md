@@ -60,6 +60,7 @@ scripts/new_agent_task.sh feature/<task-name> "<task title>"
 ```
 
 이 script는 파일만 생성한다. Branch 생성 또는 전환, remote pull, agent 실행, 검증 실행은 하지 않는다.
+현재 git branch와 입력한 `branch-name`이 다르면 workflow 문서를 생성하지 않고 종료한다.
 
 생성하는 파일:
 
