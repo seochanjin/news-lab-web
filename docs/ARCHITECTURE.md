@@ -1,0 +1,94 @@
+# NewsLab Web 아키텍처
+
+## 개요
+
+NewsLab Web은 NewsLab 콘텐츠를 탐색하는 프론트엔드 애플리케이션이다. 이 저장소에는 브라우저 대상 애플리케이션과 프론트엔드 workflow 문서만 포함한다.
+
+현재 확인된 기술 스택은 다음과 같다.
+
+- Next.js `16.2.7` App Router
+- React `19.2.4`
+- strict checking을 사용하는 TypeScript
+- `@tailwindcss/postcss`를 사용하는 Tailwind CSS `4`
+- npm
+
+Backend API, DB, Supabase SQL, K3s resource, production infrastructure는 이 저장소의 작업 범위 밖이다.
+
+## 현재 구조
+
+### 애플리케이션
+
+- `app/layout.tsx`: root layout, metadata, global font 설정, 문서 언어를 관리한다.
+- `app/page.tsx`: 현재 `/` route, mock topic 영역, 기사 API fetch/render 흐름을 포함한다.
+- `app/globals.css`: Tailwind import와 global style을 포함한다.
+- `app/favicon.ico`: 애플리케이션 favicon이다.
+
+현재 `src/`, `components/`, `pages/`, `lib/`, `hooks/`, 별도 `styles/` 디렉터리는 없다. 범위가 명확한 프론트엔드 작업에 필요하고 검토 가능한 구조를 유지할 수 있을 때만 추가한다.
+
+### 정적 자산
+
+- `public/`: Next.js가 제공하는 정적 파일을 둔다.
+- `public/screenshots/`: 프로젝트 문서에 사용하는 tracked screenshot을 둔다.
+
+### 설정
+
+- `next.config.ts`: Next.js 설정 파일이다.
+- `tsconfig.json`: TypeScript 설정과 `@/*` root alias를 정의한다.
+- `eslint.config.mjs`: Next.js Core Web Vitals와 TypeScript lint rule을 정의한다.
+- `postcss.config.mjs`: Tailwind CSS PostCSS plugin을 설정한다.
+- `.github/workflows/ci.yml`: npm install, lint, typecheck, build 검증을 정의한다.
+
+이 저장소의 Next.js 버전은 이전 convention과 다른 breaking change를 포함하므로 Next.js 동작을 변경하기 전에 `node_modules/next/dist/docs/`의 관련 로컬 가이드를 읽는다.
+
+## Routing과 Rendering
+
+- root-level Next.js App Router `app/` 디렉터리를 사용한다.
+- `app/page.tsx`가 `/` route를 제공한다.
+- `app/layout.tsx`가 모든 route를 감싼다.
+- 현재 page는 Server Component이며 기사 목록 loading UI에 `Suspense`를 사용한다.
+- 현재 route handler와 Pages Router route는 없다.
+
+## API 연동
+
+현재 기사 API 연동은 `app/page.tsx`에 직접 구현되어 있다. 재사용 가능한 API client 위치는 아직 표준화되지 않았다.
+
+향후 여러 endpoint 또는 공통 request 동작이 필요하면 `lib/` 또는 route와 함께 배치한 private directory 같은 프론트엔드 전용 모듈을 검토한다. 이 저장소에 backend API 구현을 추가하지 않는다.
+
+현재 프론트엔드 API 사용 방식은 다음과 같다.
+
+- `NEXT_PUBLIC_NEWSLAB_API_BASE_URL`을 읽는다.
+- Server Component에서 기존 backend `GET /articles` endpoint를 호출한다.
+- 응답을 프론트엔드 view model로 변환한다.
+- loading, error, empty state를 처리한다.
+
+## 환경 변수
+
+Tracked 문서에는 환경 변수명을 기록할 수 있지만 실제 값은 포함하지 않는다.
+
+현재 문서화된 환경 변수명:
+
+- `NEXT_PUBLIC_NEWSLAB_API_BASE_URL`: 프론트엔드가 사용하는 public NewsLab API base URL
+
+`.env.example`을 포함한 모든 `.env`, `.env.*` 파일은 agent 수정 범위 밖이다.
+
+## 스타일링
+
+- React markup에서 Tailwind CSS utility를 사용한다.
+- Tailwind global import와 작은 global default는 `app/globals.css`에 둔다.
+- 현재 별도 component library 또는 design token module은 없다.
+
+프론트엔드 변경은 responsive layout, 읽기 쉬운 상태 UI, keyboard/accessibility behavior, 기존 화면과의 시각적 일관성을 고려해야 한다.
+
+## Agent workflow 문서
+
+Workflow 협업은 파일 기반으로 진행한다.
+
+- `docs/tasks/`: 작업 요구사항의 source of truth
+- `docs/reviews/`: review finding만 기록
+- `docs/fixes/`: 사람이 승인한 수정과 처리 결과 기록
+- `docs/verification/`: 실제 실행한 command, 결과, pending 검증 기록
+- `docs/pr/`: verification 기록을 근거로 작성한 PR 초안
+- `docs/devlog/`: verification 기록을 근거로 작성한 작업 기록
+- `docs/prompts/`: 재사용 가능한 프론트엔드 agent prompt
+
+Helper script는 workflow 문서를 생성하고 handoff prompt를 출력할 뿐 agent, test, git remote operation, deployment를 실행하지 않는다.
