@@ -21,6 +21,31 @@ export type TopicsResponse = {
   has_next: boolean;
 };
 
+export type TopicArticle = {
+  article_id: number;
+  title: string;
+  url: string;
+  source: string;
+  published_at: string | null;
+  role: "representative" | "supporting" | string;
+  similarity_score: number;
+};
+
+export type TopicDetail = Topic & {
+  topic_candidate_id: string;
+  key_points: string[];
+  confidence: number;
+  summary_input_hash: string;
+  articles: TopicArticle[];
+};
+
+export class TopicNotFoundError extends Error {
+  constructor(id: number) {
+    super(`Topic ${id} was not found.`);
+    this.name = "TopicNotFoundError";
+  }
+}
+
 function isTopic(value: unknown): value is Topic {
   if (!value || typeof value !== "object") {
     return false;
@@ -42,6 +67,43 @@ function isTopic(value: unknown): value is Topic {
     typeof topic.status === "string" &&
     typeof topic.created_at === "string" &&
     typeof topic.updated_at === "string"
+  );
+}
+
+function isTopicArticle(value: unknown): value is TopicArticle {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const article = value as Partial<TopicArticle>;
+
+  return (
+    typeof article.article_id === "number" &&
+    typeof article.title === "string" &&
+    typeof article.url === "string" &&
+    typeof article.source === "string" &&
+    (typeof article.published_at === "string" ||
+      article.published_at === null) &&
+    typeof article.role === "string" &&
+    typeof article.similarity_score === "number"
+  );
+}
+
+function isTopicDetail(value: unknown): value is TopicDetail {
+  if (!isTopic(value)) {
+    return false;
+  }
+
+  const topic = value as Partial<TopicDetail>;
+
+  return (
+    typeof topic.topic_candidate_id === "string" &&
+    Array.isArray(topic.key_points) &&
+    topic.key_points.every((point) => typeof point === "string") &&
+    typeof topic.confidence === "number" &&
+    typeof topic.summary_input_hash === "string" &&
+    Array.isArray(topic.articles) &&
+    topic.articles.every(isTopicArticle)
   );
 }
 
@@ -86,6 +148,38 @@ export async function getTopics(
 
   if (!isTopicsResponse(data)) {
     throw new Error("Topics API returned an unexpected response.");
+  }
+
+  return data;
+}
+
+export async function getTopicDetail(id: number): Promise<TopicDetail> {
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new TopicNotFoundError(id);
+  }
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_NEWSLAB_API_BASE_URL;
+
+  if (!apiBaseUrl) {
+    throw new Error("Topics API base URL is not configured.");
+  }
+
+  const response = await fetch(new URL(`/topics/${id}`, apiBaseUrl), {
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
+    throw new TopicNotFoundError(id);
+  }
+
+  if (!response.ok) {
+    throw new Error(`Topics API request failed with status ${response.status}.`);
+  }
+
+  const data: unknown = await response.json();
+
+  if (!isTopicDetail(data)) {
+    throw new Error("Topics API returned an unexpected detail response.");
   }
 
   return data;
