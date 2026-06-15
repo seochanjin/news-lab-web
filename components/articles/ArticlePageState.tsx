@@ -1,3 +1,4 @@
+import { PageShell } from "@/components/layout/PageShell";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
 export function ArticlePageState({
@@ -11,14 +12,14 @@ export function ArticlePageState({
 }) {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+      <SiteHeader activeSection="articles" />
+      <PageShell className="">
         <div className="border border-slate-200 bg-white px-5 py-16 text-center sm:px-7">
           <h1 className="text-lg font-bold text-slate-900">{title}</h1>
           <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
           {action ? <div className="mt-6">{action}</div> : null}
         </div>
-      </main>
+      </PageShell>
     </div>
   );
 }

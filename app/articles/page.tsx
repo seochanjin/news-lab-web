@@ -3,6 +3,7 @@ import {
   ArticleList,
   ArticleListState,
 } from "@/components/articles/ArticleList";
+import { PageShell } from "@/components/layout/PageShell";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getArticles } from "@/lib/api/articles";
 
@@ -17,6 +18,27 @@ const categoryLabels: Record<string, string> = {
 
 function getSearchParam(value: string | string[] | undefined) {
   return (Array.isArray(value) ? value[0] : value)?.trim() ?? "";
+}
+
+function buildArticlesHref({
+  query,
+  category,
+}: {
+  query?: string;
+  category?: string;
+}) {
+  const searchParams = new URLSearchParams();
+
+  if (query) {
+    searchParams.set("query", query);
+  }
+
+  if (category) {
+    searchParams.set("category", category);
+  }
+
+  const suffix = searchParams.toString();
+  return suffix ? `/articles?${suffix}` : "/articles";
 }
 
 export default async function ArticlesPage({
@@ -38,17 +60,18 @@ export default async function ArticlesPage({
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
-      <SiteHeader activeCategory={category ?? "all"} initialQuery={query} />
+      <SiteHeader activeSection="articles" initialQuery={query} />
 
-      <main className="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <PageShell>
         <section className="border border-slate-200 bg-white px-5 py-6 sm:px-7 sm:py-7">
           <p className="text-xs font-semibold text-teal-700">ARTICLE SEARCH</p>
           <h1 className="mt-2 text-2xl font-bold text-slate-950 sm:text-3xl">
-            기사 탐색
+            원문 모음
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-            NewsLab이 수집한 기사 목록을 검색어와 카테고리로 탐색합니다.
-            기사 제목을 선택하면 원문을 새 탭에서 확인할 수 있습니다.
+            주요 이슈의 근거가 되는 원문 기사를 검색어와 카테고리로
+            탐색합니다. 기사 제목을 선택하면 원문을 새 탭에서 확인할 수
+            있습니다.
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 text-xs">
@@ -56,14 +79,28 @@ export default async function ArticlesPage({
               {hasFilters ? "현재 탐색 조건" : "전체 최신 기사"}
             </span>
             {query ? (
-              <span className="border border-teal-100 bg-teal-50 px-2 py-1 text-teal-800">
+              <Link
+                aria-label="검색어 조건 제거"
+                className="inline-flex items-center gap-2 border border-teal-100 bg-teal-50 px-2 py-1 text-teal-800 hover:border-teal-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                href={buildArticlesHref({ category })}
+              >
                 검색어: {query}
-              </span>
+                <span aria-hidden="true" className="font-bold">
+                  ×
+                </span>
+              </Link>
             ) : null}
             {category ? (
-              <span className="border border-teal-100 bg-teal-50 px-2 py-1 text-teal-800">
+              <Link
+                aria-label="카테고리 조건 제거"
+                className="inline-flex items-center gap-2 border border-teal-100 bg-teal-50 px-2 py-1 text-teal-800 hover:border-teal-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                href={buildArticlesHref({ query })}
+              >
                 카테고리: {categoryLabels[category]}
-              </span>
+                <span aria-hidden="true" className="font-bold">
+                  ×
+                </span>
+              </Link>
             ) : null}
             {hasFilters ? (
               <Link
@@ -117,7 +154,7 @@ export default async function ArticlesPage({
             />
           )}
         </section>
-      </main>
+      </PageShell>
     </div>
   );
 }

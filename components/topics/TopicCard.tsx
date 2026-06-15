@@ -22,28 +22,25 @@ export function TopicCard({ topic }: { topic: Topic }) {
       href={`/topics/${topic.id}`}
     >
       <article className="border border-slate-200 bg-white p-5 transition group-hover:border-teal-300 group-hover:bg-teal-50/30">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <time
             className="text-xs font-semibold text-teal-700"
             dateTime={topic.topic_date}
           >
             {formatTopicDate(topic.topic_date)}
           </time>
-          <span className="border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-500">
-            {topic.status}
-          </span>
         </div>
 
         <h3 className="mt-3 text-base font-bold leading-6 text-slate-950 group-hover:text-teal-800">
           {topic.title_ko}
         </h3>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">
           {topic.summary_ko}
         </p>
 
         {topic.keywords.length > 0 ? (
           <ul aria-label="주요 키워드" className="mt-4 flex flex-wrap gap-2">
-            {topic.keywords.map((keyword, index) => (
+            {topic.keywords.slice(0, 3).map((keyword, index) => (
               <li
                 className="border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600"
                 key={`${topic.id}-${keyword}-${index}`}
@@ -68,9 +65,6 @@ export function TopicCard({ topic }: { topic: Topic }) {
               {topic.article_count}
             </strong>
             건
-          </span>
-          <span className="sm:ml-auto">
-            {topic.provider} · {topic.model}
           </span>
         </div>
       </article>

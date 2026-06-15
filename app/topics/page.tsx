@@ -1,3 +1,4 @@
+import { PageShell } from "@/components/layout/PageShell";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TopicExplorer } from "@/components/topics/TopicExplorer";
 import { getTopics } from "@/lib/api/topics";
@@ -7,9 +8,9 @@ export default async function TopicsPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
-      <SiteHeader />
+      <SiteHeader activeSection="topics" />
 
-      <main className="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <PageShell>
         <section className="border border-slate-200 bg-white px-5 py-6 sm:px-7 sm:py-7">
           <p className="text-xs font-semibold text-teal-700">TOPIC ARCHIVE</p>
           <h1 className="mt-2 text-2xl font-bold text-slate-950 sm:text-3xl">
@@ -22,7 +23,7 @@ export default async function TopicsPage() {
         </section>
 
         <TopicExplorer initialTopics={response.items} total={response.total} />
-      </main>
+      </PageShell>
     </div>
   );
 }

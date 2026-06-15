@@ -1,52 +1,46 @@
 import Link from "next/link";
 import { HeaderArticleSearch } from "@/components/layout/HeaderArticleSearch";
 
-const categories = [
-  { label: "전체", value: "all" },
-  { label: "정치", value: "politics" },
-  { label: "경제", value: "economy" },
-  { label: "기술", value: "tech" },
-  { label: "세계", value: "world" },
-  { label: "사회", value: "society" },
-  { label: "AI", value: "ai" },
+const navigation = [
+  { label: "주요 이슈", href: "/topics", section: "topics" },
+  { label: "원문 모음", href: "/articles", section: "articles" },
 ];
 
 export function SiteHeader({
-  activeCategory,
+  activeSection,
   initialQuery,
 }: {
-  activeCategory?: string;
+  activeSection?: "topics" | "articles";
   initialQuery?: string;
 }) {
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(420px,760px)_minmax(0,1fr)] lg:items-center lg:py-6">
-        <div className="flex items-baseline gap-3 lg:justify-self-start">
-          <Link
-            className="text-2xl font-black text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700"
-            href="/"
-          >
-            NewsLab
-          </Link>
-          <span className="text-xs font-medium text-slate-400">
-            뉴스를 한눈에
-          </span>
-        </div>
+      <div className="mx-auto grid w-full max-w-7xl px-4 py-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,960px)_minmax(0,1fr)] lg:py-5">
+        <div className="grid min-w-0 gap-4 md:grid-cols-[auto_minmax(280px,1fr)] md:items-center lg:col-start-2">
+          <div className="flex min-w-0 items-baseline gap-3">
+            <Link
+              className="text-2xl font-black text-teal-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700"
+              href="/"
+            >
+              NewsLab
+            </Link>
+            <span className="hidden whitespace-nowrap text-xs font-medium text-slate-400 sm:inline">
+              뉴스를 한눈에
+            </span>
+          </div>
 
-        <HeaderArticleSearch
-          initialCategory={activeCategory}
-          initialQuery={initialQuery}
-        />
+          <HeaderArticleSearch initialQuery={initialQuery} />
+        </div>
       </div>
 
-      <nav aria-label="뉴스 카테고리" className="border-t border-slate-100">
-        <div className="mx-auto grid w-full max-w-7xl px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(420px,760px)_minmax(0,1fr)]">
-          <ul className="flex gap-1 overflow-x-auto lg:col-start-2">
-            {categories.map((category) => {
-              const isActive = category.value === activeCategory;
+      <nav aria-label="서비스 탐색" className="border-t border-slate-100">
+        <div className="mx-auto grid w-full max-w-7xl px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,960px)_minmax(0,1fr)]">
+          <ul className="flex gap-1 lg:col-start-2">
+            {navigation.map((item) => {
+              const isActive = item.section === activeSection;
 
               return (
-                <li key={category.value}>
+                <li key={item.section}>
                   <Link
                     aria-current={isActive ? "page" : undefined}
                     className={`block whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold ${
@@ -54,13 +48,9 @@ export function SiteHeader({
                         ? "border-teal-700 text-teal-700"
                         : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-950"
                     }`}
-                    href={
-                      category.value === "all"
-                        ? "/articles"
-                        : `/articles?category=${category.value}`
-                    }
+                    href={item.href}
                   >
-                    {category.label}
+                    {item.label}
                   </Link>
                 </li>
               );

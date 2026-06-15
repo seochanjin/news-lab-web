@@ -76,9 +76,6 @@ export function TopicArticleList({ articles }: { articles: TopicArticle[] }) {
                     <span className="font-medium text-slate-500">
                       {article.source}
                     </span>
-                    <span className="text-slate-400">
-                      유사도 {article.similarity_score.toFixed(2)}
-                    </span>
                   </div>
 
                   <h3 className="mt-3 break-words text-base font-bold leading-7 text-slate-950">
