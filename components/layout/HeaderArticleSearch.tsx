@@ -3,10 +3,8 @@
 import { useRouter } from "next/navigation";
 
 export function HeaderArticleSearch({
-  initialCategory,
   initialQuery = "",
 }: {
-  initialCategory?: string;
   initialQuery?: string;
 }) {
   const router = useRouter();
@@ -19,31 +17,27 @@ export function HeaderArticleSearch({
       searchParams.set("query", query);
     }
 
-    if (initialCategory && initialCategory !== "all") {
-      searchParams.set("category", initialCategory);
-    }
-
     const suffix = searchParams.toString();
-    router.push(suffix ? `/articles?${suffix}` : "/articles");
+    router.push(suffix ? `/search?${suffix}` : "/search");
   }
 
   return (
     <form
       action={submitSearch}
-      className="flex w-full lg:col-start-2"
+      className="flex w-full"
       role="search"
     >
       <label className="sr-only" htmlFor="news-search">
-        기사 검색
+        주요 이슈와 원문 기사 통합 검색
       </label>
       <input
-        aria-label="기사 제목이나 키워드 검색"
+        aria-label="주요 이슈와 원문 기사 검색"
         className="min-w-0 flex-1 border border-r-0 border-slate-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-teal-600"
         defaultValue={initialQuery}
         id="news-search"
         key={initialQuery}
         name="query"
-        placeholder="기사 제목이나 키워드를 검색하세요"
+        placeholder="주요 이슈와 원문 기사를 검색하세요"
         type="search"
       />
       <button

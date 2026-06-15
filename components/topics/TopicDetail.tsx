@@ -1,3 +1,4 @@
+import { PageShell } from "@/components/layout/PageShell";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TopicArticleList } from "@/components/topics/TopicArticleList";
 import type { TopicDetail as TopicDetailData } from "@/lib/api/topics";
@@ -18,9 +19,9 @@ function formatTopicDate(topicDate: string) {
 export function TopicDetail({ topic }: { topic: TopicDetailData }) {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
-      <SiteHeader />
+      <SiteHeader activeSection="topics" />
 
-      <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <PageShell>
         <article className="border border-slate-200 bg-white px-5 py-6 sm:px-7 sm:py-7">
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <time
@@ -29,13 +30,6 @@ export function TopicDetail({ topic }: { topic: TopicDetailData }) {
             >
               {formatTopicDate(topic.topic_date)}
             </time>
-            <span className="border border-slate-200 bg-slate-50 px-2 py-1 font-medium text-slate-500">
-              {topic.status}
-            </span>
-            <span className="text-slate-400 sm:ml-auto">
-              {topic.provider} · {topic.model} · confidence{" "}
-              {topic.confidence.toFixed(2)}
-            </span>
           </div>
 
           <h1 className="mt-5 break-words text-2xl font-bold leading-9 text-slate-950 sm:text-3xl sm:leading-10">
@@ -116,7 +110,7 @@ export function TopicDetail({ topic }: { topic: TopicDetailData }) {
         </article>
 
         <TopicArticleList articles={topic.articles} />
-      </main>
+      </PageShell>
     </div>
   );
 }
