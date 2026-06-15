@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { TopicCard } from "@/components/topics/TopicCard";
 import { getTopics, type TopicsResponse } from "@/lib/api/topics";
 
@@ -36,11 +37,19 @@ function TopicListHeader({
           오늘의 주요 이슈
         </h2>
       </div>
-      <p className="max-w-sm text-xs leading-5 text-slate-500">
-        {typeof count === "number" && typeof total === "number"
-          ? `자동 생성된 전체 ${total}개 이슈 중 ${count}개를 표시합니다.`
-          : "여러 출처의 기사를 하나의 흐름으로 정리한 daily topic summary입니다."}
-      </p>
+      <div className="max-w-sm text-right">
+        <p className="text-xs leading-5 text-slate-500">
+          {typeof count === "number" && typeof total === "number"
+            ? `자동 생성된 전체 ${total}개 이슈 중 ${count}개를 표시합니다.`
+            : "여러 출처의 기사를 하나의 흐름으로 정리한 daily topic summary입니다."}
+        </p>
+        <Link
+          className="mt-2 inline-flex text-xs font-semibold text-teal-700 hover:text-teal-900 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700"
+          href="/topics"
+        >
+          전체 주요 이슈 보기
+        </Link>
+      </div>
     </div>
   );
 }
