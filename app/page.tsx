@@ -1,38 +1,11 @@
 import { Suspense } from "react";
+import {
+  ArticleList as ArticleRows,
+  ArticleListState,
+} from "@/components/articles/ArticleList";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TopicList, TopicListLoading } from "@/components/topics/TopicList";
-
-type ArticlesApiArticle = {
-  id: number;
-  source_id: number;
-  source: string;
-  title: string;
-  url: string;
-  category: string;
-  summary: string | null;
-  published_at: string | null;
-  tags: string[];
-  created_at: string;
-};
-
-type ArticlesApiResponse = {
-  page: number;
-  page_size: number;
-  count: number;
-  total: number;
-  has_next: boolean;
-  articles: ArticlesApiArticle[];
-};
-
-type ArticleViewModel = {
-  id: number;
-  category: string;
-  title: string;
-  source: string;
-  publishedAt: string;
-  metadata?: string;
-  url?: string;
-};
+import { getArticles } from "@/lib/api/articles";
 
 type MockKeyword = {
   rank: number;
@@ -46,29 +19,6 @@ type MockArticleGroup = {
   description: string;
   sourceCount: number;
   articleTitles: string[];
-};
-
-type ArticlesResult =
-  | {
-      status: "success";
-      articles: ArticleViewModel[];
-      count: number;
-      total: number;
-      hasNext: boolean;
-    }
-  | {
-      status: "error";
-    };
-
-const categoryLabels: Record<string, string> = {
-  ai: "AI",
-  business: "경제",
-  economy: "경제",
-  politics: "정치",
-  society: "사회",
-  tech: "기술",
-  technology: "기술",
-  world: "세계",
 };
 
 const mockKeywords: MockKeyword[] = [
@@ -107,124 +57,6 @@ const mockArticleGroups: MockArticleGroup[] = [
   },
 ];
 
-function isArticlesApiResponse(value: unknown): value is ArticlesApiResponse {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const response = value as Partial<ArticlesApiResponse>;
-
-  return (
-    typeof response.page === "number" &&
-    typeof response.page_size === "number" &&
-    typeof response.count === "number" &&
-    typeof response.total === "number" &&
-    typeof response.has_next === "boolean" &&
-    Array.isArray(response.articles)
-  );
-}
-
-function formatCategory(category: string) {
-  const normalizedCategory = category.trim().toLowerCase();
-
-  return categoryLabels[normalizedCategory] || category.trim() || "기타";
-}
-
-function formatPublishedAt(publishedAt: string | null) {
-  if (!publishedAt) {
-    return "발행 시간 미상";
-  }
-
-  const date = new Date(publishedAt);
-
-  if (Number.isNaN(date.getTime())) {
-    return "발행 시간 미상";
-  }
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Seoul",
-  }).format(date);
-}
-
-function getSafeArticleUrl(url: string) {
-  try {
-    const parsedUrl = new URL(url);
-
-    return ["http:", "https:"].includes(parsedUrl.protocol)
-      ? parsedUrl.toString()
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function getArticleMetadata(article: ArticlesApiArticle) {
-  const summary = article.summary?.trim();
-
-  if (summary) {
-    return summary;
-  }
-
-  if (article.tags.length > 0) {
-    return article.tags
-      .slice(0, 3)
-      .map((tag) => `#${tag}`)
-      .join(" ");
-  }
-
-  return undefined;
-}
-
-function toArticleViewModel(article: ArticlesApiArticle): ArticleViewModel {
-  return {
-    id: article.id,
-    category: formatCategory(article.category),
-    title: article.title,
-    source: article.source,
-    publishedAt: formatPublishedAt(article.published_at),
-    metadata: getArticleMetadata(article),
-    url: getSafeArticleUrl(article.url),
-  };
-}
-
-async function getArticles(): Promise<ArticlesResult> {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_NEWSLAB_API_BASE_URL;
-
-  if (!apiBaseUrl) {
-    return { status: "error" };
-  }
-
-  try {
-    const endpoint = new URL("/articles", apiBaseUrl);
-    endpoint.searchParams.set("page", "1");
-    endpoint.searchParams.set("page_size", "10");
-
-    const response = await fetch(endpoint, { cache: "no-store" });
-
-    if (!response.ok) {
-      return { status: "error" };
-    }
-
-    const data: unknown = await response.json();
-
-    if (!isArticlesApiResponse(data)) {
-      return { status: "error" };
-    }
-
-    return {
-      status: "success",
-      articles: data.articles.map(toArticleViewModel),
-      count: data.count,
-      total: data.total,
-      hasNext: data.has_next,
-    };
-  } catch {
-    return { status: "error" };
-  }
-}
-
 function ArticleListHeader({
   count,
   total,
@@ -251,79 +83,18 @@ function ArticleListHeader({
   );
 }
 
-function ArticleRows({ articles }: { articles: ArticleViewModel[] }) {
-  return (
-    <ol className="divide-y divide-slate-100">
-      {articles.map((article) => (
-        <li
-          className="group px-4 py-4 hover:bg-slate-50 sm:px-5"
-          key={article.id}
-        >
-          <article className="grid gap-2 sm:grid-cols-[72px_minmax(0,1fr)_auto] sm:items-center sm:gap-4">
-            <div>
-              <span className="inline-flex border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600">
-                {article.category}
-              </span>
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-sm font-semibold leading-6 text-slate-900 group-hover:text-teal-800 sm:text-[15px]">
-                {article.url ? (
-                  <a
-                    className="hover:underline"
-                    href={article.url}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    {article.title}
-                  </a>
-                ) : (
-                  article.title
-                )}
-              </h2>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-                <span className="font-medium text-slate-500">
-                  {article.source}
-                </span>
-                <time>{article.publishedAt}</time>
-              </div>
-              {article.metadata ? (
-                <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
-                  {article.metadata}
-                </p>
-              ) : null}
-            </div>
-            <span
-              aria-hidden="true"
-              className="hidden text-lg text-slate-300 group-hover:text-teal-700 sm:block"
-            >
-              ›
-            </span>
-          </article>
-        </li>
-      ))}
-    </ol>
-  );
+async function getHomeArticles() {
+  try {
+    return await getArticles();
+  } catch {
+    return null;
+  }
 }
 
-function ArticleListState({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="px-5 py-16 text-center">
-      <p className="text-sm font-semibold text-slate-700">{title}</p>
-      <p className="mt-2 text-xs leading-5 text-slate-500">{description}</p>
-    </div>
-  );
-}
+async function HomeArticleList() {
+  const result = await getHomeArticles();
 
-async function ArticleList() {
-  const result = await getArticles();
-
-  if (result.status === "error") {
+  if (!result) {
     return (
       <section className="min-w-0 border border-slate-200 bg-white">
         <ArticleListHeader />
@@ -339,7 +110,7 @@ async function ArticleList() {
     <section className="min-w-0 border border-slate-200 bg-white">
       <ArticleListHeader
         count={result.count}
-        hasNext={result.hasNext}
+        hasNext={result.has_next}
         total={result.total}
       />
       {result.articles.length > 0 ? (
@@ -354,7 +125,7 @@ async function ArticleList() {
   );
 }
 
-function ArticleListLoading() {
+function HomeArticleListLoading() {
   return (
     <section className="min-w-0 border border-slate-200 bg-white">
       <ArticleListHeader />
@@ -487,7 +258,7 @@ function TopicExperience() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
-      <SiteHeader activeCategory="전체" />
+      <SiteHeader />
 
       <main className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(420px,760px)_minmax(0,1fr)] lg:py-8">
         <div
@@ -505,8 +276,8 @@ export default function Home() {
               eyebrow="LATEST ARTICLES"
               title="최신 기사 이어보기"
             />
-            <Suspense fallback={<ArticleListLoading />}>
-              <ArticleList />
+            <Suspense fallback={<HomeArticleListLoading />}>
+              <HomeArticleList />
             </Suspense>
           </section>
         </div>
