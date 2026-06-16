@@ -13,12 +13,28 @@ export type Topic = {
   updated_at: string;
 };
 
+export type HomeTopic = {
+  id: number;
+  topic_date: string | null;
+  title_ko: string;
+  summary_ko: string;
+  keywords: string[];
+  source_count: number;
+  article_count: number;
+};
+
 export type TopicsResponse = {
   items: Topic[];
   page: number;
   page_size: number;
   total: number;
   has_next: boolean;
+};
+
+export type HomeTopicsResponse = {
+  generated_at: string;
+  topic_date: string | null;
+  items: HomeTopic[];
 };
 
 export type TopicArticle = {
@@ -67,6 +83,25 @@ function isTopic(value: unknown): value is Topic {
     typeof topic.status === "string" &&
     typeof topic.created_at === "string" &&
     typeof topic.updated_at === "string"
+  );
+}
+
+function isHomeTopic(value: unknown): value is HomeTopic {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const topic = value as Partial<HomeTopic>;
+
+  return (
+    typeof topic.id === "number" &&
+    (typeof topic.topic_date === "string" || topic.topic_date === null) &&
+    typeof topic.title_ko === "string" &&
+    typeof topic.summary_ko === "string" &&
+    Array.isArray(topic.keywords) &&
+    topic.keywords.every((keyword) => typeof keyword === "string") &&
+    typeof topic.source_count === "number" &&
+    typeof topic.article_count === "number"
   );
 }
 
@@ -124,17 +159,56 @@ function isTopicsResponse(value: unknown): value is TopicsResponse {
   );
 }
 
-export async function getTopics(
-  page = 1,
-  pageSize = 10,
-): Promise<TopicsResponse> {
+function isHomeTopicsResponse(value: unknown): value is HomeTopicsResponse {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const response = value as Partial<HomeTopicsResponse>;
+
+  return (
+    typeof response.generated_at === "string" &&
+    (typeof response.topic_date === "string" || response.topic_date === null) &&
+    Array.isArray(response.items) &&
+    response.items.every(isHomeTopic)
+  );
+}
+
+function getTopicsApiBaseUrl() {
   const apiBaseUrl = process.env.NEXT_PUBLIC_NEWSLAB_API_BASE_URL;
 
   if (!apiBaseUrl) {
     throw new Error("Topics API base URL is not configured.");
   }
 
-  const endpoint = new URL("/topics", apiBaseUrl);
+  return apiBaseUrl;
+}
+
+export async function getHomeTopics(): Promise<HomeTopicsResponse> {
+  const response = await fetch(new URL("/topics/home", getTopicsApiBaseUrl()), {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Home topics API request failed with status ${response.status}.`,
+    );
+  }
+
+  const data: unknown = await response.json();
+
+  if (!isHomeTopicsResponse(data)) {
+    throw new Error("Home topics API returned an unexpected response.");
+  }
+
+  return data;
+}
+
+export async function getTopics(
+  page = 1,
+  pageSize = 10,
+): Promise<TopicsResponse> {
+  const endpoint = new URL("/topics", getTopicsApiBaseUrl());
   endpoint.searchParams.set("page", String(page));
   endpoint.searchParams.set("page_size", String(pageSize));
 
@@ -158,13 +232,7 @@ export async function getTopicDetail(id: number): Promise<TopicDetail> {
     throw new TopicNotFoundError(id);
   }
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_NEWSLAB_API_BASE_URL;
-
-  if (!apiBaseUrl) {
-    throw new Error("Topics API base URL is not configured.");
-  }
-
-  const response = await fetch(new URL(`/topics/${id}`, apiBaseUrl), {
+  const response = await fetch(new URL(`/topics/${id}`, getTopicsApiBaseUrl()), {
     cache: "no-store",
   });
 
