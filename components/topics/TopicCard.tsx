@@ -1,7 +1,19 @@
 import Link from "next/link";
-import type { Topic } from "@/lib/api/topics";
+export type TopicCardData = {
+  id: number;
+  topic_date: string | null;
+  title_ko: string;
+  summary_ko: string;
+  keywords: string[];
+  source_count: number;
+  article_count: number;
+};
 
-function formatTopicDate(topicDate: string) {
+function formatTopicDate(topicDate: string | null) {
+  if (!topicDate) {
+    return "날짜 미정";
+  }
+
   const date = new Date(`${topicDate}T00:00:00+09:00`);
 
   if (Number.isNaN(date.getTime())) {
@@ -14,7 +26,7 @@ function formatTopicDate(topicDate: string) {
   }).format(date);
 }
 
-export function TopicCard({ topic }: { topic: Topic }) {
+export function TopicCard({ topic }: { topic: TopicCardData }) {
   return (
     <Link
       aria-label={`주요 이슈 상세 보기: ${topic.title_ko}`}
@@ -25,7 +37,7 @@ export function TopicCard({ topic }: { topic: Topic }) {
         <div className="flex flex-wrap items-center gap-2">
           <time
             className="text-xs font-semibold text-teal-700"
-            dateTime={topic.topic_date}
+            dateTime={topic.topic_date ?? undefined}
           >
             {formatTopicDate(topic.topic_date)}
           </time>

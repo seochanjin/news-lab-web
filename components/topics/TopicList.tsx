@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { TopicCard } from "@/components/topics/TopicCard";
-import { getTopics, type TopicsResponse } from "@/lib/api/topics";
+import { getHomeTopics, type HomeTopicsResponse } from "@/lib/api/topics";
 
 type TopicsResult =
   | {
       status: "success";
-      response: TopicsResponse;
+      response: HomeTopicsResponse;
     }
   | {
       status: "error";
@@ -15,7 +15,7 @@ async function getTopicsResult(): Promise<TopicsResult> {
   try {
     return {
       status: "success",
-      response: await getTopics(1, 10),
+      response: await getHomeTopics(),
     };
   } catch {
     return { status: "error" };
@@ -41,6 +41,8 @@ function TopicListHeader({
         <p className="text-xs leading-5 text-slate-500">
           {typeof count === "number" && typeof total === "number"
             ? `자동 생성된 전체 ${total}개 이슈 중 ${count}개를 표시합니다.`
+            : typeof count === "number"
+              ? `자동 생성된 주요 이슈 ${count}개를 표시합니다.`
             : "여러 출처의 기사를 하나의 흐름으로 정리한 daily topic summary입니다."}
         </p>
         <Link
@@ -88,7 +90,7 @@ export async function TopicList() {
 
   return (
     <section className="space-y-4">
-      <TopicListHeader count={response.items.length} total={response.total} />
+      <TopicListHeader count={response.items.length} />
       {response.items.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {response.items.map((topic, index) => (
