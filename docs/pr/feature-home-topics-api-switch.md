@@ -52,6 +52,14 @@
 - `bash -n scripts/new_agent_task.sh`: 통과
 - `bash -n scripts/agent_next_step.sh`: 통과
 - local dev server HTML marker curl: `/`, `/topics`, `/articles` exit code 0
+- local dev server 수동 브라우저 확인:
+  - `/` 홈 주요 이슈 카드 표시 확인
+  - 홈 topic card 클릭 시 `/topics/{id}` 상세 이동 확인
+  - `/topics` archive 표시 확인
+  - `/topics/13` detail 및 연결 기사 목록 표시 확인
+  - `/search?query=중동` 통합 검색 결과 표시 확인
+  - `/articles` 원문 기사 목록 표시 확인
+  - DevTools Console에서 API 전환으로 인한 runtime error 또는 hydration mismatch 없음 확인
 
 ## 확인 결과
 
@@ -61,4 +69,5 @@
 
 ## 비고
 
-- 수동 브라우저 UI, responsive viewport, browser console 확인은 pending이다.
+- production deploy/verification, domain 연결은 이번 PR 초안 기준 pending이다.
+- 별도 mobile/tablet/desktop responsive viewport matrix 검증은 기록되지 않았다.
