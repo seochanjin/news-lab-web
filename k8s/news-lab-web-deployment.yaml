@@ -16,6 +16,8 @@ spec:
         app.kubernetes.io/name: news-lab-web
         app.kubernetes.io/part-of: newslab
     spec:
+      nodeSelector:
+        workload: app
       containers:
         - name: news-lab-web
           image: seocj/news-lab-web:latest
