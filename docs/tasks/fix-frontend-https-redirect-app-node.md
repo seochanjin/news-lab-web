@@ -625,8 +625,8 @@ http://www.newslab.ai.kr
 50차 확인 결과:
 
 ```text
-- newslab.ai.kr DNS A record는 152.67.211.33
-- www.newslab.ai.kr DNS A record는 152.67.211.33
+- newslab.ai.kr DNS A record는 1xx.xx.xxx.xx
+- www.newslab.ai.kr DNS A record는 1xx.xx.xxx.xx
 - AAAA record는 없음
 - news-lab-web Deployment READY 2/2
 - news-lab-web Pod 2개 Running
