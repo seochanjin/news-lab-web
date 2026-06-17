@@ -68,8 +68,8 @@ README는 수정하지 않았다.
   - `docker pull seocj/news-lab-web:latest`: 권한 상승 후 성공.
   - `docker image inspect seocj/news-lab-web:latest --format '{{.Architecture}}/{{.Os}}'`: 권한 상승 후 `arm64/linux`.
 - DNS:
-  - `dig +short newslab.ai.kr`: 권한 상승 후 `152.67.211.33`.
-  - `dig +short www.newslab.ai.kr`: 권한 상승 후 `152.67.211.33`.
+  - `dig +short newslab.ai.kr`: 권한 상승 후 `1xx.xx.xxx.xx`.
+  - `dig +short www.newslab.ai.kr`: 권한 상승 후 `1xx.xx.xxx.xx`.
 - cert-manager 전제조건:
   - `kubectl get clusterissuer`: `letsencrypt-prod   True   22d`.
   - `kubectl get clusterissuer letsencrypt-prod`: `letsencrypt-prod   True   22d`.

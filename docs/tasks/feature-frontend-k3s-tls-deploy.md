@@ -355,7 +355,7 @@ dig +short www.newslab.ai.kr
 기대:
 
 ```text
-152.67.211.33
+1xx.xx.xxx.xx
 ```
 
 주의:
@@ -498,9 +498,9 @@ curl -I http://localhost:3000
 DNS 전파와 무관하게 public IP로 확인한다.
 
 ```bash
-curl -I -H "Host: newslab.ai.kr" http://152.67.211.33/api/health
+curl -I -H "Host: newslab.ai.kr" http://1xx.xx.xxx.xx/api/health
 
-curl -sS -H "Host: newslab.ai.kr" http://152.67.211.33/api/health
+curl -sS -H "Host: newslab.ai.kr" http://1xx.xx.xxx.xx/api/health
 ```
 
 기대:
@@ -513,25 +513,25 @@ HTTP 200
 홈 확인:
 
 ```bash
-curl -I -H "Host: newslab.ai.kr" http://152.67.211.33
+curl -I -H "Host: newslab.ai.kr" http://1xx.xx.xxx.xx
 
-curl -sS -H "Host: newslab.ai.kr" http://152.67.211.33 | rg "오늘의 주요 이슈|전체 주요 이슈 보기"
+curl -sS -H "Host: newslab.ai.kr" http://1xx.xx.xxx.xx | rg "오늘의 주요 이슈|전체 주요 이슈 보기"
 ```
 
 www 확인:
 
 ```bash
-curl -I -H "Host: www.newslab.ai.kr" http://152.67.211.33
+curl -I -H "Host: www.newslab.ai.kr" http://1xx.xx.xxx.xx
 
-curl -sS -H "Host: www.newslab.ai.kr" http://152.67.211.33 | rg "오늘의 주요 이슈|전체 주요 이슈 보기"
+curl -sS -H "Host: www.newslab.ai.kr" http://1xx.xx.xxx.xx | rg "오늘의 주요 이슈|전체 주요 이슈 보기"
 ```
 
 주요 route marker:
 
 ```bash
-curl -sS -H "Host: newslab.ai.kr" http://152.67.211.33/topics | rg "주요 이슈 아카이브|전체 주요 이슈"
+curl -sS -H "Host: newslab.ai.kr" http://1xx.xx.xxx.xx/topics | rg "주요 이슈 아카이브|전체 주요 이슈"
 
-curl -sS -H "Host: newslab.ai.kr" http://152.67.211.33/articles | rg "기사 탐색|기사 목록"
+curl -sS -H "Host: newslab.ai.kr" http://1xx.xx.xxx.xx/articles | rg "기사 탐색|기사 목록"
 ```
 
 ### 11. cert-manager Certificate 확인
@@ -650,7 +650,7 @@ https://www.newslab.ai.kr
 ```text
 - seocj/news-lab-web:latest ARM64 image pull 성공
 - Docker image inspect 결과 arm64/linux 확인
-- DNS A record가 newslab.ai.kr, www.newslab.ai.kr 모두 152.67.211.33을 가리킴
+- DNS A record가 newslab.ai.kr, www.newslab.ai.kr 모두 1xx.xx.xxx.xx을 가리킴
 - letsencrypt-prod ClusterIssuer 존재 및 사용 가능 확인
 - Deployment/Service/Ingress server-side dry-run 통과
 - K3s Deployment/Service/Ingress apply 완료
@@ -708,7 +708,7 @@ backend domain 전환은 다음 차수에서 별도로 진행한다.
 DNS 주의:
 
 ```text
-newslab.ai.kr, www.newslab.ai.kr은 public DNS A record로 Oracle master node public IP인 152.67.211.33을 가리켜야 한다.
+newslab.ai.kr, www.newslab.ai.kr은 public DNS A record로 Oracle master node public IP인 1xx.xx.xxx.xx을 가리켜야 한다.
 Tailscale 100.x IP를 가비아 public DNS A record에 넣으면 안 된다.
 ```
 

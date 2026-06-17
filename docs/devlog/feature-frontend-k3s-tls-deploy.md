@@ -114,8 +114,8 @@ TLS secretName: news-lab-web-tls
   - `docker pull seocj/news-lab-web:latest`: 권한 상승 후 성공.
   - `docker image inspect seocj/news-lab-web:latest --format '{{.Architecture}}/{{.Os}}'`: 권한 상승 후 `arm64/linux`.
 - DNS:
-  - `dig +short newslab.ai.kr`: 권한 상승 후 `152.67.211.33`.
-  - `dig +short www.newslab.ai.kr`: 권한 상승 후 `152.67.211.33`.
+  - `dig +short newslab.ai.kr`: 권한 상승 후 `1xx.xx.xxx.xx`.
+  - `dig +short www.newslab.ai.kr`: 권한 상승 후 `1xx.xx.xxx.xx`.
 - cert-manager 전제조건:
   - `kubectl get clusterissuer`: `letsencrypt-prod   True   22d`.
   - `kubectl get clusterissuer letsencrypt-prod`: `letsencrypt-prod   True   22d`.
@@ -150,7 +150,7 @@ README는 수정하지 않았다.
 ## 확인 결과
 
 - frontend Ingress manifest에 cert-manager TLS 선언이 추가됐다.
-- `newslab.ai.kr`, `www.newslab.ai.kr` DNS A record는 `152.67.211.33`으로 확인됐다.
+- `newslab.ai.kr`, `www.newslab.ai.kr` DNS A record는 `1xx.xx.xxx.xx`으로 확인됐다.
 - Docker Hub `seocj/news-lab-web:latest`는 `linux/arm64` manifest를 포함하고, local inspect 결과 `arm64/linux`로 확인됐다.
 - `letsencrypt-prod` ClusterIssuer는 read-only 조회에서 `Ready=True`로 확인됐다.
 - frontend route/page/component/API client는 변경하지 않았다.

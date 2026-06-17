@@ -80,10 +80,10 @@
   - 권한 상승 후 재실행 결과 `docker.io/seocj/news-lab-web:latest` manifest에 `Platform: linux/arm64`가 포함됨을 확인했다.
 - `dig +short newslab.ai.kr`:
   - 최초 sandbox 실행은 socket bind 권한 문제로 실패했다.
-  - 권한 상승 후 재실행 결과 `152.67.211.33`.
+  - 권한 상승 후 재실행 결과 `1xx.xx.xxx.xx`.
 - `dig +short www.newslab.ai.kr`:
   - 최초 sandbox 실행은 socket bind 권한 문제로 실패했다.
-  - 권한 상승 후 재실행 결과 `152.67.211.33`.
+  - 권한 상승 후 재실행 결과 `1xx.xx.xxx.xx`.
 - `docker pull seocj/news-lab-web:latest`:
   - 최초 sandbox 실행은 Docker credential helper 오류로 실패했다.
   - 권한 상승 후 재실행 결과 pull 성공. 출력: `Status: Image is up to date for seocj/news-lab-web:latest`.
