@@ -104,8 +104,9 @@ NewsLab Web frontend는 Next.js standalone output을 사용해 self-hosted Node.
 - K3s manifest 초안은 `news-lab-web` Deployment/Service와 `news-lab-web-ingress` Ingress를 정의하며 frontend service를 cluster 내부 port 80에서 container port 3000으로 연결한다.
 - Deployment readiness/liveness probe는 frontend process 자체 확인을 위해 외부 API를 호출하지 않는 `/api/health` route를 사용한다.
 - Ingress manifest 초안은 현재 K3s IngressClass 기준에 맞춰 `traefik`을 사용한다.
+- Ingress TLS는 cert-manager `letsencrypt-prod` ClusterIssuer와 `news-lab-web-tls` Secret을 사용하도록 선언한다.
 - 초기 frontend API target은 기존 `https://api.dev-scj.site`를 유지한다.
-- `newslab.ai.kr`와 `www.newslab.ai.kr` host는 Ingress manifest 초안에 포함되어 있지만 DNS/TLS 연결과 production rollout은 별도 수동 단계다.
+- `newslab.ai.kr`와 `www.newslab.ai.kr` host는 Ingress manifest 초안에 포함되어 있지만 DNS, certificate 발급, production rollout verification은 별도 수동 단계다.
 
 이 저장소의 배포 파일은 frontend 배포 준비물이다. Agent는 `kubectl apply`, rollout, Docker Hub secret 설정, production deploy, domain/TLS verification을 수행하지 않는다.
 

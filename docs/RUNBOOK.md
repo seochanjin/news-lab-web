@@ -90,6 +90,8 @@ K3s manifest는 `k8s/` 아래에 둔다.
 
 Deployment probe는 frontend process 자체 확인용 `/api/health` route를 사용한다. 이 route는 backend API, DB, 외부 네트워크를 호출하지 않는다.
 
+Ingress는 `newslab.ai.kr`, `www.newslab.ai.kr` host와 cert-manager `letsencrypt-prod` ClusterIssuer를 사용한다. TLS Secret 이름은 `news-lab-web-tls`다. DNS, Certificate 발급, HTTPS 확인은 실제 운영 환경에서 사람이 별도로 검증해야 한다.
+
 문법 확인은 client dry-run으로 수행할 수 있다.
 
 ```bash
@@ -105,6 +107,16 @@ kubectl apply -f k8s/news-lab-web-deployment.yaml
 kubectl apply -f k8s/news-lab-web-service.yaml
 kubectl apply -f k8s/news-lab-web-ingress.yaml
 kubectl rollout status deployment/news-lab-web
+```
+
+TLS 적용 후 사람이 확인할 대표 항목은 다음과 같다. 실제 실행 전에는 완료로 기록하지 않는다.
+
+```bash
+kubectl get certificate
+kubectl describe certificate news-lab-web-tls
+kubectl get secret news-lab-web-tls
+curl -I https://newslab.ai.kr/api/health
+curl -I https://www.newslab.ai.kr
 ```
 
 Docker Hub push workflow는 `.github/workflows/docker-build.yml`에 초안으로 둔다. 실제 push에는 GitHub repository secrets `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` 설정이 필요하다. 실제 secret 값은 tracked file에 기록하지 않는다.
