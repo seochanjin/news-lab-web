@@ -5,8 +5,15 @@ metadata:
   labels:
     app.kubernetes.io/name: news-lab-web
     app.kubernetes.io/part-of: newslab
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - newslab.ai.kr
+        - www.newslab.ai.kr
+      secretName: news-lab-web-tls
   rules:
     - host: newslab.ai.kr
       http:
