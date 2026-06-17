@@ -92,17 +92,23 @@ Deployment probe는 frontend process 자체 확인용 `/api/health` route를 사
 
 Ingress는 `newslab.ai.kr`, `www.newslab.ai.kr` host와 cert-manager `letsencrypt-prod` ClusterIssuer를 사용한다. TLS Secret 이름은 `news-lab-web-tls`다. DNS, Certificate 발급, HTTPS 확인은 실제 운영 환경에서 사람이 별도로 검증해야 한다.
 
+HTTP에서 HTTPS로의 전환은 Traefik Middleware `news-lab-web-redirect-https`로 선언한다. Ingress annotation은 `default-news-lab-web-redirect-https@kubernetescrd`를 참조한다.
+
+Frontend app workload는 `workload=app` node에만 배치되도록 Deployment에 `nodeSelector`를 둔다. 현재 운영 라벨 기준에서 `arm-worker-node`가 app workload 대상이며, `arm-master-node`와 라벨이 없는 node는 frontend Pod 배치 대상이 아니다.
+
 문법 확인은 client dry-run으로 수행할 수 있다.
 
 ```bash
 kubectl apply --dry-run=client -f k8s/news-lab-web-deployment.yaml
 kubectl apply --dry-run=client -f k8s/news-lab-web-service.yaml
 kubectl apply --dry-run=client -f k8s/news-lab-web-ingress.yaml
+kubectl apply --dry-run=client -f k8s/news-lab-web-redirect-https-middleware.yaml
 ```
 
 Agent는 실제 운영 리소스 변경 command를 실행하지 않는다. 다음 명령은 사람이 별도 승인·절차로 수행해야 하며, agent verification에는 수행하지 않은 것으로 남긴다.
 
 ```bash
+kubectl apply -f k8s/news-lab-web-redirect-https-middleware.yaml
 kubectl apply -f k8s/news-lab-web-deployment.yaml
 kubectl apply -f k8s/news-lab-web-service.yaml
 kubectl apply -f k8s/news-lab-web-ingress.yaml
@@ -118,6 +124,20 @@ kubectl get secret news-lab-web-tls
 curl -I https://newslab.ai.kr/api/health
 curl -I https://www.newslab.ai.kr
 ```
+
+HTTP redirect와 node 배치 적용 후 사람이 확인할 대표 항목은 다음과 같다. 실제 실행 전에는 완료로 기록하지 않는다.
+
+```bash
+kubectl get pods -l app.kubernetes.io/name=news-lab-web -o wide
+curl -I http://newslab.ai.kr
+curl -I http://www.newslab.ai.kr
+curl -I https://newslab.ai.kr
+curl -I https://www.newslab.ai.kr
+curl -sS https://newslab.ai.kr/api/health
+curl -sS https://www.newslab.ai.kr/api/health
+```
+
+기대 결과는 `news-lab-web` Pod가 `workload=app` node에만 배치되고, HTTP 요청이 동일 host의 HTTPS URL로 permanent redirect되며, 기존 HTTPS와 `/api/health` 응답이 정상 유지되는 것이다.
 
 Docker Hub push workflow는 `.github/workflows/docker-build.yml`에 초안으로 둔다. 실제 push에는 GitHub repository secrets `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` 설정이 필요하다. 실제 secret 값은 tracked file에 기록하지 않는다.
 

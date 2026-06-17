@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: news-lab-web-redirect-https
+  labels:
+    app.kubernetes.io/name: news-lab-web
+    app.kubernetes.io/part-of: newslab
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
