@@ -51,6 +51,64 @@ git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"
 
 작업 범위와 비용에 맞는 검증을 선택한다. 실제 실행한 command와 결과만 해당 branch의 verification 문서에 기록한다.
 
+## Docker Build 확인
+
+Frontend container는 Next.js standalone output을 사용한다. Docker build에는 public API base URL을 build arg로 전달한다.
+
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_NEWSLAB_API_BASE_URL=https://api.dev-scj.site \
+  -t news-lab-web:local .
+```
+
+로컬에서 container를 실행한다.
+
+```bash
+docker run --rm -p 3000:3000 news-lab-web:local
+```
+
+다른 터미널에서 주요 route marker를 확인한다.
+
+```bash
+curl -I http://localhost:3000/api/health
+curl -sS http://localhost:3000/api/health
+curl -I http://localhost:3000
+curl -sS http://localhost:3000 | rg "오늘의 주요 이슈|전체 주요 이슈 보기"
+curl -sS http://localhost:3000/topics | rg "주요 이슈 아카이브|전체 주요 이슈"
+curl -sS http://localhost:3000/articles | rg "기사 탐색|기사 목록"
+```
+
+`NEXT_PUBLIC_NEWSLAB_API_BASE_URL`은 browser에 노출되는 public frontend config다. DB URL, token, credential, private key 같은 secret을 `NEXT_PUBLIC_*` 값에 넣지 않는다.
+
+## K3s Manifest 확인
+
+K3s manifest는 `k8s/` 아래에 둔다.
+
+- `k8s/news-lab-web-deployment.yaml`
+- `k8s/news-lab-web-service.yaml`
+- `k8s/news-lab-web-ingress.yaml`
+
+Deployment probe는 frontend process 자체 확인용 `/api/health` route를 사용한다. 이 route는 backend API, DB, 외부 네트워크를 호출하지 않는다.
+
+문법 확인은 client dry-run으로 수행할 수 있다.
+
+```bash
+kubectl apply --dry-run=client -f k8s/news-lab-web-deployment.yaml
+kubectl apply --dry-run=client -f k8s/news-lab-web-service.yaml
+kubectl apply --dry-run=client -f k8s/news-lab-web-ingress.yaml
+```
+
+Agent는 실제 운영 리소스 변경 command를 실행하지 않는다. 다음 명령은 사람이 별도 승인·절차로 수행해야 하며, agent verification에는 수행하지 않은 것으로 남긴다.
+
+```bash
+kubectl apply -f k8s/news-lab-web-deployment.yaml
+kubectl apply -f k8s/news-lab-web-service.yaml
+kubectl apply -f k8s/news-lab-web-ingress.yaml
+kubectl rollout status deployment/news-lab-web
+```
+
+Docker Hub push workflow는 `.github/workflows/docker-build.yml`에 초안으로 둔다. 실제 push에는 GitHub repository secrets `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` 설정이 필요하다. 실제 secret 값은 tracked file에 기록하지 않는다.
+
 ## Agent 작업 흐름
 
 Branch용 workflow 문서를 생성한다.
