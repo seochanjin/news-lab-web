@@ -100,12 +100,14 @@ NewsLab Web frontend는 Next.js standalone output을 사용해 self-hosted Node.
 - `next.config.ts`는 `output: "standalone"`을 사용한다.
 - `Dockerfile`은 dependency install, Next.js build, standalone runtime stage를 분리한다.
 - Docker build 시 `NEXT_PUBLIC_NEWSLAB_API_BASE_URL` build arg로 public API base URL을 전달한다. `NEXT_PUBLIC_*` 값은 browser bundle에 포함되는 public config이며 secret으로 취급하지 않는다.
+- `NEXT_PUBLIC_NEWSLAB_API_BASE_URL`은 `next build` 시 browser bundle에 고정되므로 운영 API target 변경에는 frontend image rebuild와 rollout이 필요하다. Deployment runtime env만 바꾸는 것으로 기존 image의 browser bundle 값은 변경되지 않는다.
 - runtime container는 `node server.js`로 Next.js standalone server를 실행하고 `3000` port를 노출한다.
 - K3s manifest 초안은 `news-lab-web` Deployment/Service와 `news-lab-web-ingress` Ingress를 정의하며 frontend service를 cluster 내부 port 80에서 container port 3000으로 연결한다.
 - Deployment readiness/liveness probe는 frontend process 자체 확인을 위해 외부 API를 호출하지 않는 `/api/health` route를 사용한다.
 - Ingress manifest 초안은 현재 K3s IngressClass 기준에 맞춰 `traefik`을 사용한다.
 - Ingress TLS는 cert-manager `letsencrypt-prod` ClusterIssuer와 `news-lab-web-tls` Secret을 사용하도록 선언한다.
-- 초기 frontend API target은 기존 `https://api.dev-scj.site`를 유지한다.
+- frontend 운영 API target은 `https://api.newslab.ai.kr`이다.
+- 기존 `https://api.dev-scj.site` backend domain은 rollback과 안정화 기간의 병행 운영 대상으로 유지하며 frontend 운영 설정에는 사용하지 않는다.
 - `newslab.ai.kr`와 `www.newslab.ai.kr` host는 Ingress manifest 초안에 포함되어 있지만 DNS, certificate 발급, production rollout verification은 별도 수동 단계다.
 
 이 저장소의 배포 파일은 frontend 배포 준비물이다. Agent는 `kubectl apply`, rollout, Docker Hub secret 설정, production deploy, domain/TLS verification을 수행하지 않는다.

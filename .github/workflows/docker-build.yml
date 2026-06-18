@@ -11,7 +11,7 @@ on:
 
 env:
   IMAGE_NAME: seocj/news-lab-web
-  NEXT_PUBLIC_NEWSLAB_API_BASE_URL: https://api.dev-scj.site
+  NEXT_PUBLIC_NEWSLAB_API_BASE_URL: https://api.newslab.ai.kr
 
 jobs:
   build:
