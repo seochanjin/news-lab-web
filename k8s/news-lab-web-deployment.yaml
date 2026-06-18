@@ -29,7 +29,7 @@ spec:
             - name: NODE_ENV
               value: production
             - name: NEXT_PUBLIC_NEWSLAB_API_BASE_URL
-              value: https://api.dev-scj.site
+              value: https://api.newslab.ai.kr
             - name: HOSTNAME
               value: 0.0.0.0
             - name: PORT
