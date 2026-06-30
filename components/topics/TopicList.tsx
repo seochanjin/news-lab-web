@@ -32,7 +32,6 @@ function TopicListHeader({
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="text-xs font-semibold text-teal-700">DAILY TOPICS</p>
         <h2 className="mt-1 text-lg font-bold text-slate-950">
           오늘의 주요 이슈
         </h2>
@@ -42,7 +41,7 @@ function TopicListHeader({
           {typeof count === "number" && typeof total === "number"
             ? `자동 생성된 전체 ${total}개 이슈 중 ${count}개를 표시합니다.`
             : typeof count === "number"
-              ? `자동 생성된 주요 이슈 ${count}개를 표시합니다.`
+              ? `주요 이슈 ${count}개를 표시합니다.`
             : "여러 출처의 기사를 하나의 흐름으로 정리한 daily topic summary입니다."}
         </p>
         <Link

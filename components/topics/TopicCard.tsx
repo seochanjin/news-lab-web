@@ -11,7 +11,7 @@ export type TopicCardData = {
 
 function formatTopicDate(topicDate: string | null) {
   if (!topicDate) {
-    return "날짜 미정";
+    return "날짜 없음";
   }
 
   const date = new Date(`${topicDate}T00:00:00+09:00`);
@@ -29,7 +29,7 @@ function formatTopicDate(topicDate: string | null) {
 export function TopicCard({ topic }: { topic: TopicCardData }) {
   return (
     <Link
-      aria-label={`주요 이슈 상세 보기: ${topic.title_ko}`}
+      aria-label={`주요 이슈 열기: ${topic.title_ko}`}
       className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700"
       href={`/topics/${topic.id}`}
     >

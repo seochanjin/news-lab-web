@@ -37,6 +37,23 @@ export type HomeTopicsResponse = {
   items: HomeTopic[];
 };
 
+export type PeriodTopicHomeItem = {
+  id: number;
+  topic_date: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  title_ko: string;
+  summary_ko: string;
+};
+
+export type PeriodTopicsHomeResponse = {
+  generated_at: string | null;
+  topic_date: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  items: PeriodTopicHomeItem[];
+};
+
 export type TopicArticle = {
   article_id: number;
   title: string;
@@ -55,10 +72,34 @@ export type TopicDetail = Topic & {
   articles: TopicArticle[];
 };
 
+export type PeriodTopicDetail = {
+  id: number;
+  topic_date: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  title_ko: string;
+  summary_ko: string;
+  keywords: string[];
+  source_count: number;
+  article_count: number;
+  key_points: string[];
+  articles: TopicArticle[];
+};
+
 export class TopicNotFoundError extends Error {
   constructor(id: number) {
     super(`Topic ${id} was not found.`);
     this.name = "TopicNotFoundError";
+  }
+}
+
+export class PeriodTopicNotFoundError extends Error {
+  constructor(
+    readonly kind: "three-day" | "weekly",
+    readonly id: number,
+  ) {
+    super(`${kind} topic ${id} was not found.`);
+    this.name = "PeriodTopicNotFoundError";
   }
 }
 
@@ -86,6 +127,21 @@ function isTopic(value: unknown): value is Topic {
   );
 }
 
+function getNullableStringProperty(
+  value: Record<string, unknown>,
+  keys: string[],
+) {
+  for (const key of keys) {
+    const field = value[key];
+
+    if (typeof field === "string" || field === null) {
+      return field;
+    }
+  }
+
+  return null;
+}
+
 function isHomeTopic(value: unknown): value is HomeTopic {
   if (!value || typeof value !== "object") {
     return false;
@@ -103,6 +159,39 @@ function isHomeTopic(value: unknown): value is HomeTopic {
     typeof topic.source_count === "number" &&
     typeof topic.article_count === "number"
   );
+}
+
+function toPeriodTopicHomeItem(value: unknown): PeriodTopicHomeItem | undefined {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+
+  const topic = value as Record<string, unknown>;
+
+  if (
+    typeof topic.id !== "number" ||
+    typeof topic.title_ko !== "string" ||
+    typeof topic.summary_ko !== "string"
+  ) {
+    return undefined;
+  }
+
+  return {
+    id: topic.id,
+    topic_date: getNullableStringProperty(topic, ["topic_date", "date"]),
+    period_start: getNullableStringProperty(topic, [
+      "period_start",
+      "start_date",
+      "from_date",
+    ]),
+    period_end: getNullableStringProperty(topic, [
+      "period_end",
+      "end_date",
+      "to_date",
+    ]),
+    title_ko: topic.title_ko,
+    summary_ko: topic.summary_ko,
+  };
 }
 
 function isTopicArticle(value: unknown): value is TopicArticle {
@@ -124,6 +213,16 @@ function isTopicArticle(value: unknown): value is TopicArticle {
   );
 }
 
+function toTopicArticles(value: unknown) {
+  return Array.isArray(value) ? value.filter(isTopicArticle) : [];
+}
+
+function toStringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
 function isTopicDetail(value: unknown): value is TopicDetail {
   if (!isTopic(value)) {
     return false;
@@ -140,6 +239,46 @@ function isTopicDetail(value: unknown): value is TopicDetail {
     Array.isArray(topic.articles) &&
     topic.articles.every(isTopicArticle)
   );
+}
+
+function toPeriodTopicDetail(value: unknown): PeriodTopicDetail | undefined {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+
+  const topic = value as Record<string, unknown>;
+
+  if (
+    typeof topic.id !== "number" ||
+    typeof topic.title_ko !== "string" ||
+    typeof topic.summary_ko !== "string"
+  ) {
+    return undefined;
+  }
+
+  return {
+    id: topic.id,
+    topic_date: getNullableStringProperty(topic, ["topic_date", "date"]),
+    period_start: getNullableStringProperty(topic, [
+      "period_start",
+      "start_date",
+      "from_date",
+    ]),
+    period_end: getNullableStringProperty(topic, [
+      "period_end",
+      "end_date",
+      "to_date",
+    ]),
+    title_ko: topic.title_ko,
+    summary_ko: topic.summary_ko,
+    keywords: toStringArray(topic.keywords),
+    source_count:
+      typeof topic.source_count === "number" ? topic.source_count : 0,
+    article_count:
+      typeof topic.article_count === "number" ? topic.article_count : 0,
+    key_points: toStringArray(topic.key_points),
+    articles: toTopicArticles(topic.articles),
+  };
 }
 
 function isTopicsResponse(value: unknown): value is TopicsResponse {
@@ -174,6 +313,47 @@ function isHomeTopicsResponse(value: unknown): value is HomeTopicsResponse {
   );
 }
 
+function toPeriodTopicsHomeResponse(
+  value: unknown,
+): PeriodTopicsHomeResponse | undefined {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+
+  const response = value as Record<string, unknown>;
+
+  if (!Array.isArray(response.items)) {
+    return undefined;
+  }
+
+  const items = response.items.flatMap((item) => {
+    const topic = toPeriodTopicHomeItem(item);
+
+    return topic ? [topic] : [];
+  });
+
+  if (items.length !== response.items.length) {
+    return undefined;
+  }
+
+  return {
+    generated_at:
+      typeof response.generated_at === "string" ? response.generated_at : null,
+    topic_date: getNullableStringProperty(response, ["topic_date", "date"]),
+    period_start: getNullableStringProperty(response, [
+      "period_start",
+      "start_date",
+      "from_date",
+    ]),
+    period_end: getNullableStringProperty(response, [
+      "period_end",
+      "end_date",
+      "to_date",
+    ]),
+    items,
+  };
+}
+
 function getTopicsApiBaseUrl() {
   const apiBaseUrl = process.env.NEXT_PUBLIC_NEWSLAB_API_BASE_URL;
 
@@ -202,6 +382,37 @@ export async function getHomeTopics(): Promise<HomeTopicsResponse> {
   }
 
   return data;
+}
+
+async function getPeriodTopicsHome(
+  pathname: "/three-day-topics/home" | "/weekly-topics/home",
+): Promise<PeriodTopicsHomeResponse> {
+  const response = await fetch(new URL(pathname, getTopicsApiBaseUrl()), {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Period topics API request failed with status ${response.status}.`,
+    );
+  }
+
+  const data: unknown = await response.json();
+  const periodTopics = toPeriodTopicsHomeResponse(data);
+
+  if (!periodTopics) {
+    throw new Error("Period topics API returned an unexpected response.");
+  }
+
+  return periodTopics;
+}
+
+export function getThreeDayTopicsHome(): Promise<PeriodTopicsHomeResponse> {
+  return getPeriodTopicsHome("/three-day-topics/home");
+}
+
+export function getWeeklyTopicsHome(): Promise<PeriodTopicsHomeResponse> {
+  return getPeriodTopicsHome("/weekly-topics/home");
 }
 
 export async function getTopics(
@@ -251,4 +462,46 @@ export async function getTopicDetail(id: number): Promise<TopicDetail> {
   }
 
   return data;
+}
+
+async function getPeriodTopicDetail(
+  kind: "three-day" | "weekly",
+  id: number,
+): Promise<PeriodTopicDetail> {
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new PeriodTopicNotFoundError(kind, id);
+  }
+
+  const pathname =
+    kind === "three-day" ? `/three-day-topics/${id}` : `/weekly-topics/${id}`;
+  const response = await fetch(new URL(pathname, getTopicsApiBaseUrl()), {
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
+    throw new PeriodTopicNotFoundError(kind, id);
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Period topic API request failed with status ${response.status}.`,
+    );
+  }
+
+  const data: unknown = await response.json();
+  const topic = toPeriodTopicDetail(data);
+
+  if (!topic) {
+    throw new Error("Period topic API returned an unexpected detail response.");
+  }
+
+  return topic;
+}
+
+export function getThreeDayTopicDetail(id: number): Promise<PeriodTopicDetail> {
+  return getPeriodTopicDetail("three-day", id);
+}
+
+export function getWeeklyTopicDetail(id: number): Promise<PeriodTopicDetail> {
+  return getPeriodTopicDetail("weekly", id);
 }
