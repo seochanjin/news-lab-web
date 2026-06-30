@@ -1,0 +1,174 @@
+# 검증 기록: 홈 화면 기간별 Topic 캐러셀 구성
+
+## 검증 범위
+- 홈 화면 기간별 Topic 캐러셀 구현 정적 검증
+- Daily, Three-day, Weekly 홈 API client와 3일/주간 상세 route build 검증
+- 변경 범위, dependency 변경 여부, secret pattern 확인
+
+## 실행한 Command
+- `pwd && git status --short --branch`
+- `sed -n '1,240p' AGENTS.md`
+- `sed -n '1,260p' docs/ARCHITECTURE.md`
+- `sed -n '1,260p' docs/RUNBOOK.md`
+- `sed -n '1,260p' docs/prompts/codex-implement.md`
+- `sed -n '1,760p' docs/tasks/feature-period-topic-carousel-home.md`
+- `find node_modules/next/dist/docs -maxdepth 3 -type f | sed -n '1,120p'`
+- `sed -n '1,220p' node_modules/next/dist/docs/01-app/01-getting-started/04-linking-and-navigating.md`
+- `sed -n '1,260p' node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md`
+- `sed -n '1,220p' node_modules/next/dist/docs/01-app/01-getting-started/03-layouts-and-pages.md`
+- `sed -n '1,220p' node_modules/next/dist/docs/01-app/01-getting-started/10-error-handling.md`
+- `rg --files app components lib docs/verification docs/pr docs/devlog | sort`
+- `find app -maxdepth 4 -type f | sort`
+- `sed -n '1,260p' app/page.tsx`
+- `sed -n '1,320p' lib/api/topics.ts`
+- `sed -n '1,280p' components/topics/TopicList.tsx`
+- `sed -n '1,260p' components/topics/TopicCard.tsx`
+- `sed -n '1,220p' 'app/topics/[id]/page.tsx'`
+- `sed -n '1,320p' components/topics/TopicDetail.tsx`
+- `sed -n '1,220p' 'app/topics/[id]/error.tsx'`
+- `sed -n '1,220p' 'app/topics/[id]/loading.tsx'`
+- `sed -n '1,220p' 'app/topics/[id]/not-found.tsx'`
+- `sed -n '1,240p' app/topics/page.tsx`
+- `rg -n "three-day|weekly|Three|Weekly|period" . --glob '!node_modules/**'`
+- `sed -n '1,260p' components/topics/TopicDetailState.tsx`
+- `sed -n '1,260p' components/topics/TopicArticleList.tsx`
+- `sed -n '1,260p' package.json`
+- `sed -n '1,260p' app/globals.css`
+- `sed -n '1,240p' components/layout/PageShell.tsx`
+- `sed -n '1,280p' components/layout/SiteHeader.tsx`
+- `sed -n '1,260p' components/layout/HeaderArticleSearch.tsx`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `git diff --check`
+- `git diff --name-only`
+- `git diff --stat`
+- `rg -n "three-day-topics|weekly-topics|topics/home" app components lib`
+- `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`
+- `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`
+- `git status --short`
+- `find app/three-day-topics app/weekly-topics components/home components/topics -maxdepth 3 -type f | sort`
+- `npm run lint`
+- `npm run typecheck`
+- `git diff --check`
+- `git status --short`
+- `git diff --stat`
+- `sed -n '1,320p' docs/fixes/feature-period-topic-carousel-home-approved-fixes.md`
+- `sed -n '1,260p' components/home/PeriodTopicSection.tsx`
+- `sed -n '1,220p' components/home/PeriodTopicHome.tsx`
+- `sed -n '1,240p' app/page.tsx`
+- `sed -n '1,220p' node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md`
+- `rg -n "날짜 미정|상세 보기|TOPIC FLOW" app components`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `git diff --check`
+- `git diff --name-only`
+- `git diff --stat`
+- `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`
+- `git status --short`
+- `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`
+- `git diff -- components/home/PeriodTopicSection.tsx components/home/PeriodTopicHome.tsx app/page.tsx`
+- `rg -n "날짜 미정|상세 보기|TOPIC FLOW" app/page.tsx components/home`
+- `sed -n '1,420p' docs/fixes/feature-period-topic-carousel-home-approved-fixes.md`
+- `sed -n '1,420p' docs/verification/feature-period-topic-carousel-home.md`
+- `sed -n '1,240p' app/page.tsx`
+- `sed -n '1,260p' components/home/PeriodTopicSection.tsx`
+- `sed -n '1,220p' components/home/PeriodTopicHome.tsx`
+- `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app components`
+- `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app/page.tsx components/home`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `git diff --check`
+- `git diff --name-only`
+- `git diff --stat`
+- `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`
+- `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`
+- `git status --short`
+- `sed -n '1,260p' package.json`
+- `sed -n '1,520p' docs/fixes/feature-period-topic-carousel-home-approved-fixes.md`
+- `sed -n '1,520p' docs/verification/feature-period-topic-carousel-home.md`
+- `sed -n '1,220p' node_modules/next/dist/docs/01-app/01-getting-started/04-linking-and-navigating.md`
+- `sed -n '1,220p' node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md`
+- `sed -n '1,240p' app/page.tsx`
+- `sed -n '1,260p' components/home/PeriodTopicHome.tsx`
+- `sed -n '1,260p' components/home/PeriodTopicSection.tsx`
+- `npm run typecheck`
+- `rg -n "dailyIndex|daily.*previous|daily.*next|오늘의 이슈 이전|오늘의 이슈 다음" app components`
+- `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app/page.tsx components/home`
+- `rg -n "오늘의 주요 이슈|전체 주요 이슈 보기|slice\\(0, 3\\)|DailyTopicHighlights" app components/home`
+- `rg -n "TopicList|TopicCard" app components --glob '*.tsx'`
+- `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app components`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `git diff --check`
+- `git diff --name-only`
+- `git diff --stat`
+- `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`
+- `git status --short`
+- `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`
+- `sed -n '1,260p' package.json`
+
+## 결과
+- `npm run lint`: 통과.
+- `npm run typecheck`: 통과.
+- `npm run build`: 통과. Next.js 16.2.7 Turbopack build가 성공했고 route 목록에 `/three-day-topics/[id]`, `/weekly-topics/[id]`가 dynamic route로 포함됨.
+- `npm run lint`: verification 문서와 JSX formatting 정리 후 재실행, 통과.
+- `git diff --check`: 통과.
+- `rg -n "three-day-topics|weekly-topics|topics/home" app components lib`: `lib/api/topics.ts`와 `app/page.tsx`에서 기대 endpoint와 href prefix 확인.
+- `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`: 출력 없음. 외부 carousel dependency 추가 없음.
+- `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`: 문서, ignore rule, 환경 변수명 reference, GitHub/Kubernetes secret 이름 reference, `package-lock.json`의 `js-tokens` package name 등을 탐지했다. 실제 secret 값은 확인되지 않았다.
+- `git status --short`: app/page.tsx, lib/api/topics.ts 수정. app/three-day-topics/, app/weekly-topics/, components/home/, components/topics/PeriodTopicDetail.tsx, workflow 문서 파일이 untracked 상태로 확인됨.
+- `npm run lint`: PR/devlog/verification 문서와 JSX formatting 정리 후 최종 재실행, 통과.
+- `npm run typecheck`: 최종 재실행, 통과.
+- `git diff --check`: 최종 재실행, 통과.
+- `git diff --stat`: tracked 변경 기준 app/page.tsx, lib/api/topics.ts 변경 확인. 새 파일은 untracked라 `git status --short`에서 별도 확인.
+- 승인 수정 적용 후 `rg -n "날짜 미정|상세 보기|TOPIC FLOW" app components`: `components/topics/TopicCard.tsx`, `components/topics/PeriodTopicDetail.tsx`에서 기존 목록/상세 fallback 문구가 탐지됨. 승인 범위인 홈 카드와 홈 섹션 라벨은 별도 범위 검색으로 확인.
+- 승인 수정 적용 후 `rg -n "날짜 미정|상세 보기|TOPIC FLOW" app/page.tsx components/home`: 출력 없음. 홈 카드/홈 섹션 범위에서는 승인 제거 문구 없음.
+- 승인 수정 적용 후 `npm run lint`: 통과.
+- 승인 수정 적용 후 `npm run typecheck`: 통과.
+- 승인 수정 적용 후 `npm run build`: 통과. Next.js 16.2.7 Turbopack build가 성공했고 route 목록에 `/three-day-topics/[id]`, `/weekly-topics/[id]`가 dynamic route로 포함됨.
+- 승인 수정 적용 후 `git diff --check`: 통과.
+- 승인 수정 적용 후 `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`: 출력 없음. dependency 변경 없음.
+- 승인 수정 적용 후 `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`: 문서, ignore rule, 환경 변수명 reference, GitHub/Kubernetes secret 이름 reference, `package-lock.json`의 `js-tokens` package name 등을 탐지했다. 실제 secret 값은 확인되지 않았다.
+- 추가 승인 수정 적용 후 `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app components`: 기존 archive/detail 컴포넌트인 `components/topics/TopicCard.tsx`, `components/topics/TopicList.tsx`, `components/topics/PeriodTopicDetail.tsx`에서 문구가 탐지됨. 홈 범위는 별도 검색으로 확인.
+- 추가 승인 수정 적용 후 `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app/page.tsx components/home`: 출력 없음. 홈 Hero와 홈 카드/섹션 범위의 제거 대상 문구 없음.
+- 추가 승인 수정 적용 후 `npm run lint`: 통과.
+- 추가 승인 수정 적용 후 `npm run typecheck`: 통과.
+- 추가 승인 수정 적용 후 `npm run build`: 통과. Next.js 16.2.7 Turbopack build가 성공했고 route 목록에 `/three-day-topics/[id]`, `/weekly-topics/[id]`가 dynamic route로 포함됨.
+- 추가 승인 수정 적용 후 `git diff --check`: 통과.
+- 추가 승인 수정 적용 후 `git diff --name-only`: tracked 변경 기준 `app/page.tsx`, `lib/api/topics.ts` 확인. 새 파일은 untracked라 `git status --short`에서 별도 확인.
+- 추가 승인 수정 적용 후 `git diff --stat`: tracked 변경 기준 `app/page.tsx`, `lib/api/topics.ts` 변경 확인.
+- 추가 승인 수정 적용 후 `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`: 출력 없음. dependency 변경 없음.
+- 추가 승인 수정 적용 후 `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`: 문서, ignore rule, 환경 변수명 reference, GitHub/Kubernetes secret 이름 reference, `package-lock.json`의 `js-tokens` package name 등을 탐지했다. 실제 secret 값은 확인되지 않았다.
+- `package.json` 확인 결과 `test` 또는 `npm test` script가 없어 test command는 실행하지 않았다.
+- Daily 구성 개선 승인 수정 적용 후 `npm run typecheck`: 통과.
+- Daily 구성 개선 승인 수정 적용 후 `rg -n "dailyIndex|daily.*previous|daily.*next|오늘의 이슈 이전|오늘의 이슈 다음" app components`: 출력 없음. Daily 캐러셀 관련 코드/label 없음.
+- Daily 구성 개선 승인 수정 적용 후 `rg -n "DAILY TOPICS|자동 생성된 주요 이슈|오늘 움직이는 뉴스 흐름|날짜 미정|상세 보기|TOPIC FLOW" app components`: 출력 없음.
+- Daily 구성 개선 승인 수정 적용 후 `rg -n "topics/home|three-day-topics/home|weekly-topics/home|three-day-topics|weekly-topics" app components lib`: `/topics/home`, `/three-day-topics/home`, `/weekly-topics/home`, 3일/주간 상세 route 연결 확인.
+- Daily 구성 개선 승인 수정 적용 후 `npm run lint`: 통과.
+- Daily 구성 개선 승인 수정 적용 후 `npm run typecheck`: 통과.
+- Daily 구성 개선 승인 수정 적용 후 `npm run build`: 통과. Next.js 16.2.7 Turbopack build가 성공했고 route 목록에 `/three-day-topics/[id]`, `/weekly-topics/[id]`가 dynamic route로 포함됨.
+- Daily 구성 개선 승인 수정 적용 후 `git diff --check`: 통과.
+- Daily 구성 개선 승인 수정 적용 후 `git diff --name-only`: tracked 변경 기준 `app/page.tsx`, `components/topics/TopicCard.tsx`, `components/topics/TopicList.tsx`, `lib/api/topics.ts` 확인. 새 파일은 untracked라 `git status --short`에서 별도 확인.
+- Daily 구성 개선 승인 수정 적용 후 `git diff --stat`: tracked 변경 기준 4개 파일 변경 확인.
+- Daily 구성 개선 승인 수정 적용 후 `git diff -- package.json package-lock.json pnpm-lock.yaml yarn.lock`: 출력 없음. dependency 변경 없음.
+- Daily 구성 개선 승인 수정 적용 후 `git grep -n -i -E "API_KEY|TOKEN|SECRET|PASSWORD|PRIVATE KEY|BEGIN|\\.env"`: 문서, ignore rule, 환경 변수명 reference, GitHub/Kubernetes secret 이름 reference, `package-lock.json`의 `js-tokens` package name 등을 탐지했다. 실제 secret 값은 확인되지 않았다.
+
+## 수동 브라우저 검증
+- 미수행.
+
+## 대기 중인 검증
+- Desktop, laptop, tablet, mobile viewport에서 홈 캐러셀 수동 확인.
+- 각 기간 캐러셀 독립 이동, disabled 버튼, 현재 위치 표시, 빈 상태, 오류 상태 수동 확인.
+- 실제 API 데이터 기준 Daily, Three-day, Weekly 카드 날짜/제목/Summary 일치 여부 확인.
+- Daily 상세, Three-day 상세, Weekly 상세 카드 이동과 브라우저 뒤로 가기 확인.
+- Screen reader label과 keyboard Tab/Enter/Space 흐름 수동 확인.
+
+## 근거 메모
+- Next.js 코드 변경 전에 로컬 `node_modules/next/dist/docs/`에서 App Router linking/navigation, Server/Client Components, layouts/pages, error handling 문서를 확인했다.
+- Build 출력에서 `.env.local` 감지가 표시됐지만 해당 파일은 읽거나 수정하지 않았고 실제 값을 tracked file에 기록하지 않았다.
+- Backend API code, DB, Supabase SQL, K3s manifest, Dockerfile, production infrastructure, secret, `.env`, `.env.*`는 수정하지 않았다.
+- git push, git merge, production deploy command는 실행하지 않았다.
