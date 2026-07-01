@@ -36,6 +36,7 @@ export function PeriodTopicDetail({
   eyebrow: string;
 }) {
   const periodLabel = formatPeriodLabel(topic);
+  const renderedArticleCount = topic.articles.length;
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
@@ -72,7 +73,7 @@ export function PeriodTopicDetail({
             <div>
               <dt className="text-xs text-slate-400">연결 기사</dt>
               <dd className="mt-1 font-bold text-slate-800">
-                {topic.article_count}건
+                {renderedArticleCount}건
               </dd>
             </div>
           </dl>
