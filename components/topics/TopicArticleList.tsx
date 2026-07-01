@@ -2,13 +2,13 @@ import type { TopicArticle } from "@/lib/api/topics";
 
 function formatPublishedAt(publishedAt: string | null) {
   if (!publishedAt) {
-    return "발행 시간 미상";
+    return "발행일 정보 없음";
   }
 
   const date = new Date(publishedAt);
 
   if (Number.isNaN(date.getTime())) {
-    return "발행 시간 미상";
+    return "발행일 정보 없음";
   }
 
   return new Intl.DateTimeFormat("ko-KR", {
@@ -25,6 +25,10 @@ function formatRole(role: string) {
 
   if (role === "supporting") {
     return "관련 기사";
+  }
+
+  if (role === "summary_evidence") {
+    return "요약 근거";
   }
 
   return role;

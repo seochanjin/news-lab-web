@@ -64,6 +64,60 @@ export type TopicArticle = {
   similarity_score: number;
 };
 
+export type PeriodTopicArticleResponse = {
+  article_id: number;
+  title: string;
+  url: string;
+  published_at: string | null;
+  source: string;
+  rank: number;
+  similarity: number;
+  is_representative: boolean;
+  is_summary_evidence: boolean;
+};
+
+export type ThreeDayTopicDetailResponse = {
+  id: number;
+  reference_date: string;
+  window_start: string;
+  window_end: string;
+  title_ko: string;
+  summary_ko: string;
+  key_points: string[];
+  keywords: string[];
+  article_count: number;
+  source_count: number;
+  status: string;
+  provider: string;
+  model: string;
+  prompt_version: string;
+  created_at: string;
+  updated_at: string;
+  articles: PeriodTopicArticleResponse[];
+};
+
+export type WeeklyTopicDetailResponse = {
+  id: number;
+  week_start: string;
+  week_end: string;
+  window_start: string;
+  window_end: string;
+  title_ko: string;
+  summary_ko: string;
+  key_points: string[];
+  keywords: string[];
+  confidence: number | null;
+  article_count: number;
+  source_count: number;
+  status: string;
+  provider: string;
+  model: string;
+  prompt_version: string;
+  created_at: string;
+  updated_at: string;
+  articles: PeriodTopicArticleResponse[];
+};
+
 export type TopicDetail = Topic & {
   topic_candidate_id: string;
   key_points: string[];
@@ -213,8 +267,49 @@ function isTopicArticle(value: unknown): value is TopicArticle {
   );
 }
 
-function toTopicArticles(value: unknown) {
-  return Array.isArray(value) ? value.filter(isTopicArticle) : [];
+function isPeriodTopicArticle(
+  value: unknown,
+): value is PeriodTopicArticleResponse {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const article = value as Partial<PeriodTopicArticleResponse>;
+
+  return (
+    typeof article.article_id === "number" &&
+    typeof article.title === "string" &&
+    typeof article.url === "string" &&
+    (typeof article.published_at === "string" ||
+      article.published_at === null) &&
+    typeof article.source === "string" &&
+    typeof article.rank === "number" &&
+    typeof article.similarity === "number" &&
+    typeof article.is_representative === "boolean" &&
+    typeof article.is_summary_evidence === "boolean"
+  );
+}
+
+function toPeriodTopicArticle(article: PeriodTopicArticleResponse): TopicArticle {
+  return {
+    article_id: article.article_id,
+    title: article.title,
+    url: article.url,
+    source: article.source,
+    published_at: article.published_at,
+    role: article.is_representative
+      ? "representative"
+      : article.is_summary_evidence
+        ? "summary_evidence"
+        : "supporting",
+    similarity_score: article.similarity,
+  };
+}
+
+function toPeriodTopicArticles(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter(isPeriodTopicArticle).map(toPeriodTopicArticle)
+    : [];
 }
 
 function toStringArray(value: unknown) {
@@ -241,12 +336,35 @@ function isTopicDetail(value: unknown): value is TopicDetail {
   );
 }
 
-function toPeriodTopicDetail(value: unknown): PeriodTopicDetail | undefined {
+function getPeriodDateFields(
+  kind: "three-day" | "weekly",
+  topic: Record<string, unknown>,
+) {
+  if (kind === "weekly") {
+    return {
+      topic_date: getNullableStringProperty(topic, ["week_start"]),
+      period_start: getNullableStringProperty(topic, ["week_start"]),
+      period_end: getNullableStringProperty(topic, ["week_end"]),
+    };
+  }
+
+  return {
+    topic_date: getNullableStringProperty(topic, ["reference_date"]),
+    period_start: getNullableStringProperty(topic, ["window_start"]),
+    period_end: getNullableStringProperty(topic, ["window_end"]),
+  };
+}
+
+function toPeriodTopicDetail(
+  kind: "three-day" | "weekly",
+  value: unknown,
+): PeriodTopicDetail | undefined {
   if (!value || typeof value !== "object") {
     return undefined;
   }
 
   const topic = value as Record<string, unknown>;
+  const dateFields = getPeriodDateFields(kind, topic);
 
   if (
     typeof topic.id !== "number" ||
@@ -258,17 +376,9 @@ function toPeriodTopicDetail(value: unknown): PeriodTopicDetail | undefined {
 
   return {
     id: topic.id,
-    topic_date: getNullableStringProperty(topic, ["topic_date", "date"]),
-    period_start: getNullableStringProperty(topic, [
-      "period_start",
-      "start_date",
-      "from_date",
-    ]),
-    period_end: getNullableStringProperty(topic, [
-      "period_end",
-      "end_date",
-      "to_date",
-    ]),
+    topic_date: dateFields.topic_date,
+    period_start: dateFields.period_start,
+    period_end: dateFields.period_end,
     title_ko: topic.title_ko,
     summary_ko: topic.summary_ko,
     keywords: toStringArray(topic.keywords),
@@ -277,7 +387,7 @@ function toPeriodTopicDetail(value: unknown): PeriodTopicDetail | undefined {
     article_count:
       typeof topic.article_count === "number" ? topic.article_count : 0,
     key_points: toStringArray(topic.key_points),
-    articles: toTopicArticles(topic.articles),
+    articles: toPeriodTopicArticles(topic.articles),
   };
 }
 
@@ -489,7 +599,7 @@ async function getPeriodTopicDetail(
   }
 
   const data: unknown = await response.json();
-  const topic = toPeriodTopicDetail(data);
+  const topic = toPeriodTopicDetail(kind, data);
 
   if (!topic) {
     throw new Error("Period topic API returned an unexpected detail response.");
