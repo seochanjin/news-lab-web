@@ -47,8 +47,36 @@ function getSafeArticleUrl(url: string) {
   }
 }
 
+const HTML_ENTITY_NAMES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+};
+
+function decodeHtmlEntities(value: string) {
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity: string) => {
+    if (entity[0] !== "#") {
+      return HTML_ENTITY_NAMES[entity] ?? match;
+    }
+
+    const isHex = entity[1] === "x" || entity[1] === "X";
+    const codePoint = Number.parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+
+    return Number.isNaN(codePoint) ? match : String.fromCodePoint(codePoint);
+  });
+}
+
+function stripHtml(value: string) {
+  return decodeHtmlEntities(value.replace(/<[^>]*>/g, " "))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function getArticleMetadata(article: Article) {
-  const summary = article.summary?.trim();
+  const summary = article.summary ? stripHtml(article.summary) : "";
 
   if (summary) {
     return summary;

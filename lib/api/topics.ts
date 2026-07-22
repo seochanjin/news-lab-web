@@ -37,6 +37,26 @@ export type HomeTopicsResponse = {
   items: HomeTopic[];
 };
 
+export type PeriodTopicListItem = {
+  id: number;
+  period_start: string;
+  period_end: string;
+  title_ko: string;
+  summary_ko: string;
+  keywords: string[];
+  source_count: number;
+  article_count: number;
+  status: string;
+};
+
+export type PeriodTopicsListResponse = {
+  items: PeriodTopicListItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  has_next: boolean;
+};
+
 export type PeriodTopicHomeItem = {
   id: number;
   topic_date: string | null;
@@ -336,6 +356,19 @@ function isTopicDetail(value: unknown): value is TopicDetail {
   );
 }
 
+const kstDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function toKstDateOnly(value: string) {
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime()) ? value : kstDateFormatter.format(date);
+}
+
 function getPeriodDateFields(
   kind: "three-day" | "weekly",
   topic: Record<string, unknown>,
@@ -348,10 +381,13 @@ function getPeriodDateFields(
     };
   }
 
+  const windowStart = getNullableStringProperty(topic, ["window_start"]);
+  const windowEnd = getNullableStringProperty(topic, ["window_end"]);
+
   return {
     topic_date: getNullableStringProperty(topic, ["reference_date"]),
-    period_start: getNullableStringProperty(topic, ["window_start"]),
-    period_end: getNullableStringProperty(topic, ["window_end"]),
+    period_start: windowStart ? toKstDateOnly(windowStart) : null,
+    period_end: windowEnd ? toKstDateOnly(windowEnd) : null,
   };
 }
 
@@ -389,6 +425,46 @@ function toPeriodTopicDetail(
     key_points: toStringArray(topic.key_points),
     articles: toPeriodTopicArticles(topic.articles),
   };
+}
+
+function isPeriodTopicListItem(value: unknown): value is PeriodTopicListItem {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const item = value as Partial<PeriodTopicListItem>;
+
+  return (
+    typeof item.id === "number" &&
+    typeof item.period_start === "string" &&
+    typeof item.period_end === "string" &&
+    typeof item.title_ko === "string" &&
+    typeof item.summary_ko === "string" &&
+    Array.isArray(item.keywords) &&
+    item.keywords.every((keyword) => typeof keyword === "string") &&
+    typeof item.source_count === "number" &&
+    typeof item.article_count === "number" &&
+    typeof item.status === "string"
+  );
+}
+
+function isPeriodTopicsListResponse(
+  value: unknown,
+): value is PeriodTopicsListResponse {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const response = value as Partial<PeriodTopicsListResponse>;
+
+  return (
+    Array.isArray(response.items) &&
+    response.items.every(isPeriodTopicListItem) &&
+    typeof response.page === "number" &&
+    typeof response.page_size === "number" &&
+    typeof response.total === "number" &&
+    typeof response.has_next === "boolean"
+  );
 }
 
 function isTopicsResponse(value: unknown): value is TopicsResponse {
@@ -546,6 +622,46 @@ export async function getTopics(
   }
 
   return data;
+}
+
+async function getPeriodTopicsList(
+  pathname: "/three-day-topics" | "/weekly-topics",
+  page: number,
+  pageSize: number,
+): Promise<PeriodTopicsListResponse> {
+  const endpoint = new URL(pathname, getTopicsApiBaseUrl());
+  endpoint.searchParams.set("page", String(page));
+  endpoint.searchParams.set("page_size", String(pageSize));
+
+  const response = await fetch(endpoint, { cache: "no-store" });
+
+  if (!response.ok) {
+    throw new Error(
+      `Period topics API request failed with status ${response.status}.`,
+    );
+  }
+
+  const data: unknown = await response.json();
+
+  if (!isPeriodTopicsListResponse(data)) {
+    throw new Error("Period topics API returned an unexpected response.");
+  }
+
+  return data;
+}
+
+export function getThreeDayTopics(
+  page = 1,
+  pageSize = 10,
+): Promise<PeriodTopicsListResponse> {
+  return getPeriodTopicsList("/three-day-topics", page, pageSize);
+}
+
+export function getWeeklyTopics(
+  page = 1,
+  pageSize = 10,
+): Promise<PeriodTopicsListResponse> {
+  return getPeriodTopicsList("/weekly-topics", page, pageSize);
 }
 
 export async function getTopicDetail(id: number): Promise<TopicDetail> {
