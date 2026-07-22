@@ -3,6 +3,7 @@ import {
   ArticleList,
   ArticleListState,
 } from "@/components/articles/ArticleList";
+import { Pagination } from "@/components/common/Pagination";
 import { PageShell } from "@/components/layout/PageShell";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getArticles } from "@/lib/api/articles";
@@ -23,9 +24,11 @@ function getSearchParam(value: string | string[] | undefined) {
 function buildArticlesHref({
   query,
   category,
+  page,
 }: {
   query?: string;
   category?: string;
+  page?: number;
 }) {
   const searchParams = new URLSearchParams();
 
@@ -37,8 +40,18 @@ function buildArticlesHref({
     searchParams.set("category", category);
   }
 
+  if (page && page > 1) {
+    searchParams.set("page", String(page));
+  }
+
   const suffix = searchParams.toString();
   return suffix ? `/articles?${suffix}` : "/articles";
+}
+
+function parsePage(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = Number.parseInt(raw ?? "1", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
 export default async function ArticlesPage({
@@ -47,6 +60,7 @@ export default async function ArticlesPage({
   searchParams: Promise<{
     query?: string | string[];
     category?: string | string[];
+    page?: string | string[];
   }>;
 }) {
   const params = await searchParams;
@@ -55,7 +69,8 @@ export default async function ArticlesPage({
   const category = categoryLabels[requestedCategory]
     ? requestedCategory
     : undefined;
-  const response = await getArticles(1, 10, { query, category });
+  const page = parsePage(params.page);
+  const response = await getArticles(page, 10, { query, category });
   const hasFilters = Boolean(query || category);
 
   return (
@@ -138,7 +153,19 @@ export default async function ArticlesPage({
           </div>
 
           {response.articles.length > 0 ? (
-            <ArticleList articles={response.articles} />
+            <>
+              <ArticleList articles={response.articles} />
+              <Pagination
+                buildHref={(targetPage) =>
+                  buildArticlesHref({ query, category, page: targetPage })
+                }
+                page={response.page}
+                totalPages={Math.max(
+                  1,
+                  Math.ceil(response.total / response.page_size),
+                )}
+              />
+            </>
           ) : (
             <ArticleListState
               description={

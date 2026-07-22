@@ -1,10 +1,40 @@
 import { PageShell } from "@/components/layout/PageShell";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { TopicExplorer } from "@/components/topics/TopicExplorer";
-import { getTopics } from "@/lib/api/topics";
+import { TopicExplorer, type TopicTab } from "@/components/topics/TopicExplorer";
+import { getThreeDayTopics, getTopics, getWeeklyTopics } from "@/lib/api/topics";
 
-export default async function TopicsPage() {
-  const response = await getTopics(1, 50);
+const PAGE_SIZE = 10;
+const VALID_TABS: TopicTab[] = ["daily", "three-day", "weekly"];
+
+function parseTab(value: string | string[] | undefined): TopicTab {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return VALID_TABS.includes(raw as TopicTab) ? (raw as TopicTab) : "daily";
+}
+
+function parsePage(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = Number.parseInt(raw ?? "1", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+export default async function TopicsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    tab?: string | string[];
+    page?: string | string[];
+  }>;
+}) {
+  const params = await searchParams;
+  const tab = parseTab(params.tab);
+  const page = parsePage(params.page);
+
+  const response =
+    tab === "three-day"
+      ? await getThreeDayTopics(page, PAGE_SIZE)
+      : tab === "weekly"
+        ? await getWeeklyTopics(page, PAGE_SIZE)
+        : await getTopics(page, PAGE_SIZE);
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
@@ -22,7 +52,13 @@ export default async function TopicsPage() {
           </p>
         </section>
 
-        <TopicExplorer initialTopics={response.items} total={response.total} />
+        <TopicExplorer
+          activeTab={tab}
+          items={response.items}
+          page={response.page}
+          pageSize={response.page_size}
+          total={response.total}
+        />
       </PageShell>
     </div>
   );
