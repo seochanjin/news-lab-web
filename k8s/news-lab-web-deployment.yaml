@@ -6,7 +6,8 @@ metadata:
     app.kubernetes.io/name: news-lab-web
     app.kubernetes.io/part-of: newslab
 spec:
-  replicas: 2
+  # NewsLab 운영 종료: 재가동을 승인하기 전까지 Pod를 실행하지 않는다.
+  replicas: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: news-lab-web
