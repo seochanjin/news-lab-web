@@ -6,3 +6,5 @@
 - 실제 검증은 `docs/verification/codex-retire-newslab-replicas.md`에 기록한다. 외부 리뷰는 미수행이다.
 
 - 사용자가 후속으로 커밋·푸시 및 main 대상 PR 생성을 승인했다. 운영 적용과 병합은 이 작업에 포함하지 않는다.
+- PR #21을 main 대상으로 생성했다: https://github.com/seochanjin/news-lab-web/pull/21
+- 사용자 검토·병합을 기다리며 서버에 설정을 적용하지 않았다.
